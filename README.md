@@ -1,10 +1,8 @@
 <div align="center">
 
-# vulnxWeb
+<h1>vulnxWeb</h1> 
 
-### CVE Search Interface
-
-*Web application for exploring Common Vulnerabilities and Exposures (CVEs)*
+<p>Minimal web application for searching and exploring Common Vulnerabilities and Exposures (CVEs) </p>
 
 [![Next.js](https://img.shields.io/badge/Next.js-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare_Workers-F38020?logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
