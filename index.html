@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vulnx – CVE Search</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="container">
+        <div class="header-content">
+          <div class="logo-section">
+            <h1 class="logo">Vulnx</h1>
+            <span class="badge">Web</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="main-content">
+      <div class="container">
+        <!-- Search Section -->
+        <div class="search-section">
+          <div class="search-bar-wrapper">
+            <div class="search-controls-row">
+              <select id="searchType" class="select-input">
+                <option value="option1">Product</option>
+                <option value="option2">CVE ID</option>
+                <option value="option3">Vendor</option>
+              </select>
+              <div class="search-input-wrapper">
+                <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.35-4.35"></path>
+                </svg>
+                <input id="searchInput" type="text" placeholder="Search vulnerabilities..." class="search-input">
+              </div>
+              <button id="toggleFilters" class="btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                </svg>
+                Filters
+              </button>
+              <button id="apiKeyButton" class="btn-primary">
+                <span id="apiKeyIndicator" class="status-indicator"></span>
+                Settings
+              </button>
+            </div>
+
+            <!-- Filter Panel -->
+            <div id="filterPanel" class="filter-panel hidden">
+              <div class="filter-header">
+                <h3>Filters</h3>
+              </div>
+              <div class="filter-options">
+                <label class="checkbox-label">
+                  <input type="checkbox" class="checkbox-input">
+                  <span>Critical Severity</span>
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" class="checkbox-input">
+                  <span>High Severity</span>
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" class="checkbox-input">
+                  <span>Recent (30 days)</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- API Key Warning Banner -->
+        <div id="apiKeyBanner" class="api-banner hidden">
+          <div class="api-banner-content">
+            <svg class="banner-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <div class="banner-text">
+              <strong>API Key Required</strong>
+              <span>Please configure your API key to access vulnerability data.</span>
+            </div>
+            <button id="setupApiKey" class="btn-link">Set up now</button>
+            <button id="dismissBanner" class="btn-close">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- API Key Panel -->
+        <div id="apiKeyPanel" class="api-panel hidden">
+          <div class="panel-header">
+            <div class="panel-header-content">
+              <h3>API Configuration</h3>
+              <span id="apiKeyStatus" class="api-status hidden">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Connected
+              </span>
+            </div>
+          </div>
+          <div class="panel-content">
+            <label class="input-label" for="apiKeyInput">API Key</label>
+            <input id="apiKeyInput" type="password" placeholder="Enter your API key" class="text-input">
+            <div class="info-disclaimer">
+              <svg class="info-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <span>Your API key is stored locally in your browser and never sent to our servers.</span>
+            </div>
+            <button id="saveApiKey" class="btn-success">Save Configuration</button>
+          </div>
+        </div>
+
+        <!-- Results Table -->
+        <div class="table-container">
+          <table class="data-table" id="cveTable">
+            <thead>
+              <tr>
+                <th>CVE ID</th>
+                <th>Product</th>
+                <th>CVSS Score</th>
+                <th>Severity</th>
+                <th>Age</th>
+                <th>PoC</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <!-- Row 1 -->
+              <tr class="table-row collapsible-row">
+                <td><span class="cve-id">CVE-2024-1234</span></td>
+                <td>Apache Struts</td>
+                <td><span class="score-badge">9.8</span></td>
+                <td><span class="severity-badge critical">Critical</span></td>
+                <td>5 days</td>
+                <td>Yes</td>
+              </tr>
+              <tr class="details-row">
+                <td colspan="6">
+                  <div class="details">
+                    <p class="detail-text">Remote code execution vulnerability in Apache Struts framework allowing attackers to execute arbitrary code through crafted OGNL expressions.</p>
+                  </div>
+                </td>
+              </tr>
+              <!-- Row 2 -->
+              <tr class="table-row collapsible-row">
+                <td><span class="cve-id">CVE-2024-5678</span></td>
+                <td>OpenSSL</td>
+                <td><span class="score-badge">7.5</span></td>
+                <td><span class="severity-badge high">High</span></td>
+                <td>8 days</td>
+                <td>No</td>
+              </tr>
+              <tr class="details-row">
+                <td colspan="6">
+                  <div class="details">
+                    <p class="detail-text">Buffer overflow in OpenSSL's TLS implementation could lead to denial of service attacks under certain conditions.</p>
+                  </div>
+                </td>
+              </tr>
+              <!-- Row 3 -->
+              <tr class="table-row collapsible-row">
+                <td><span class="cve-id">CVE-2024-9012</span></td>
+                <td>WordPress</td>
+                <td><span class="score-badge">9.1</span></td>
+                <td><span class="severity-badge critical">Critical</span></td>
+                <td>2 days</td>
+                <td>Yes</td>
+              </tr>
+              <tr class="details-row">
+                <td colspan="6">
+                  <div class="details">
+                    <p class="detail-text">SQL injection vulnerability in WordPress plugin allowing unauthorized database access and data exfiltration.</p>
+                  </div>
+                </td>
+              </tr>
+              <!-- Row 4 -->
+              <tr class="table-row collapsible-row">
+                <td><span class="cve-id">CVE-2024-3456</span></td>
+                <td>Django</td>
+                <td><span class="score-badge">6.5</span></td>
+                <td><span class="severity-badge medium">Medium</span></td>
+                <td>12 days</td>
+                <td>No</td>
+              </tr>
+              <tr class="details-row">
+                <td colspan="6">
+                  <div class="details">
+                    <p class="detail-text">Cross-site scripting (XSS) vulnerability in Django admin panel affecting versions prior to 4.2.6.</p>
+                  </div>
+                </td>
+              </tr>
+              <!-- Row 5 -->
+              <tr class="table-row collapsible-row">
+                <td><span class="cve-id">CVE-2024-7890</span></td>
+                <td>Node.js</td>
+                <td><span class="score-badge">8.8</span></td>
+                <td><span class="severity-badge high">High</span></td>
+                <td>1 day</td>
+                <td>Yes</td>
+              </tr>
+              <tr class="details-row">
+                <td colspan="6">
+                  <div class="details">
+                    <p class="detail-text">Path traversal vulnerability in Node.js file system module allowing access to restricted directories.</p>
+                  </div>
+                </td>
+              </tr>
+              <!-- Row 6 -->
+              <tr class="table-row collapsible-row">
+                <td><span class="cve-id">CVE-2024-2345</span></td>
+                <td>React</td>
+                <td><span class="score-badge">5.3</span></td>
+                <td><span class="severity-badge medium">Medium</span></td>
+                <td>15 days</td>
+                <td>No</td>
+              </tr>
+              <tr class="details-row">
+                <td colspan="6">
+                  <div class="details">
+                    <p class="detail-text">DOM-based XSS vulnerability in React's dangerouslySetInnerHTML implementation.</p>
+                  </div>
+                </td>
+              </tr>
+              <!-- Row 7 -->
+              <tr class="table-row collapsible-row">
+                <td><span class="cve-id">CVE-2024-6789</span></td>
+                <td>MySQL</td>
+                <td><span class="score-badge">9.9</span></td>
+                <td><span class="severity-badge critical">Critical</span></td>
+                <td>6 days</td>
+                <td>Yes</td>
+              </tr>
+              <tr class="details-row">
+                <td colspan="6">
+                  <div class="details">
+                    <p class="detail-text">Authentication bypass in MySQL server allowing unauthorized root access to database instances.</p>
+                  </div>
+                </td>
+              </tr>
+              <!-- Row 8 -->
+              <tr class="table-row collapsible-row">
+                <td><span class="cve-id">CVE-2024-4567</span></td>
+                <td>Nginx</td>
+                <td><span class="score-badge">7.2</span></td>
+                <td><span class="severity-badge high">High</span></td>
+                <td>10 days</td>
+                <td>No</td>
+              </tr>
+              <tr class="details-row">
+                <td colspan="6">
+                  <div class="details">
+                    <p class="detail-text">HTTP request smuggling vulnerability in Nginx proxy module affecting reverse proxy configurations.</p>
+                  </div>
+                </td>
+              </tr>
+              <!-- Row 9 -->
+              <tr class="table-row collapsible-row">
+                <td><span class="cve-id">CVE-2024-1111</span></td>
+                <td>jQuery</td>
+                <td><span class="score-badge">4.3</span></td>
+                <td><span class="severity-badge low">Low</span></td>
+                <td>17 days</td>
+                <td>No</td>
+              </tr>
+              <tr class="details-row">
+                <td colspan="6">
+                  <div class="details">
+                    <p class="detail-text">Minor information disclosure vulnerability in jQuery's AJAX implementation.</p>
+                  </div>
+                </td>
+              </tr>
+              <!-- Row 10 -->
+              <tr class="table-row collapsible-row">
+                <td><span class="cve-id">CVE-2024-8901</span></td>
+                <td>PostgreSQL</td>
+                <td><span class="score-badge">8.1</span></td>
+                <td><span class="severity-badge high">High</span></td>
+                <td>4 days</td>
+                <td>Yes</td>
+              </tr>
+              <tr class="details-row">
+                <td colspan="6">
+                  <div class="details">
+                    <p class="detail-text">Privilege escalation vulnerability in PostgreSQL allowing standard users to gain superuser access.</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-container">
+        <p>&copy; 2025 Vulnx Web by Benjamin. All rights reserved.</p>
+        <p class="footer-links">
+          Powered by <a href="https://github.com/projectdiscovery/cvemap" target="_blank" rel="noopener noreferrer">ProjectDiscovery Vulnerability API</a>
+          •
+          <a href="https://github.com/benjaminjost/vulnx-web" target="_blank" rel="noopener noreferrer">View Source on GitHub</a>
+        </p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- JavaScript for toggles (you’ll integrate into Next.js in due time) -->
+  <script>
+    document.getElementById('toggleFilters').addEventListener('click', () => {
+      const panel = document.getElementById('filterPanel');
+      panel.classList.toggle('hidden');
+    });
+
+    document.getElementById('apiKeyButton').addEventListener('click', () => {
+      document.getElementById('apiKeyPanel').classList.toggle('hidden');
+    });
+
+    document.getElementById('setupApiKey').addEventListener('click', () => {
+      document.getElementById('apiKeyPanel').classList.remove('hidden');
+      document.getElementById('apiKeyBanner').classList.add('hidden');
+    });
+
+    document.getElementById('dismissBanner').addEventListener('click', () => {
+      document.getElementById('apiKeyBanner').classList.add('hidden');
+      localStorage.setItem('vulnxBannerDismissed', 'true');
+    });
+
+    document.getElementById('saveApiKey').addEventListener('click', () => {
+      const key = document.getElementById('apiKeyInput').value.trim();
+      if (key) {
+        localStorage.setItem('vulnxApiKey', key);
+        updateApiKeyIndicator();
+        document.getElementById('apiKeyBanner').classList.add('hidden');
+        alert('API key saved successfully!');
+      }
+    });
+
+    function updateApiKeyIndicator() {
+      const indicator = document.getElementById('apiKeyIndicator');
+      const status = document.getElementById('apiKeyStatus');
+      const banner = document.getElementById('apiKeyBanner');
+      const key = localStorage.getItem('vulnxApiKey');
+      const bannerDismissed = localStorage.getItem('vulnxBannerDismissed');
+      
+      if (key) {
+        indicator.classList.add('active');
+        status.classList.remove('hidden');
+        banner.classList.add('hidden');
+      } else {
+        indicator.classList.remove('active');
+        status.classList.add('hidden');
+        if (!bannerDismissed) {
+          banner.classList.remove('hidden');
+        }
+      }
+    }
+
+    // Initial setup
+    updateApiKeyIndicator();
+
+    // Collapsible rows
+    document.querySelectorAll('.collapsible-row').forEach(row => {
+      row.addEventListener('click', () => {
+        row.classList.toggle('open');
+      });
+    });
+  </script>
+</body>
+</html>
