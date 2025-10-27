@@ -25,6 +25,7 @@ export class CVERecord {
   isAuth: boolean;
   isExploitSeen: boolean;
   isTemplate: boolean;
+  uri: string | null;
 
   constructor({
     cve_id,
@@ -49,7 +50,8 @@ export class CVERecord {
     is_remote,
     is_auth,
     is_exploit_seen,
-    is_template
+    is_template,
+    uri
   }: Record<string, unknown>) {
     this.cveId = typeof cve_id === 'string' ? cve_id : '';
     this.name = typeof name === 'string' ? name : '';
@@ -110,5 +112,6 @@ export class CVERecord {
     this.isAuth = typeof is_auth === 'boolean' ? is_auth : false;
     this.isExploitSeen = typeof is_exploit_seen === 'boolean' ? is_exploit_seen : false;
     this.isTemplate = typeof is_template === 'boolean' ? is_template : false;
+    this.uri = typeof uri === 'string' ? uri : null;
   }
 }

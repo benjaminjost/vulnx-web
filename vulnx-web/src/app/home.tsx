@@ -22,6 +22,7 @@ export default function MainPage() {
   const [apiKeySaved, setApiKeySaved] = useState(false);
   const [filterInfo, setFilterInfo] = useState<Array<{ field: string; description: string; examples: string[]; enum_values?: string[] }>>([]);
   const [loadingFilters, setLoadingFilters] = useState(false);
+  const [filterSearchTerm, setFilterSearchTerm] = useState('');
 
   useEffect(() => {
     // Check localStorage for API key on mount
@@ -264,7 +265,7 @@ export default function MainPage() {
                         <Button
                           onClick={handleSearch}
                           disabled={loading || !query.trim()}
-                          className="min-w-[100px]"
+                          className="min-w-[100px] bg-[#5E81AC] hover:bg-[#4C6A94] text-white"
                         >
                           <Search className="h-4 w-4" />
                           {loading ? 'Searching...' : 'Search'}
@@ -274,62 +275,98 @@ export default function MainPage() {
 
                     {/* Query Info Panel */}
                     {showFilters && (
-                      <Card className="border-neutral-200 dark:border-neutral-800">
-                        <CardHeader>
-                          <CardTitle className="text-base">Query Filters & Syntax</CardTitle>
-                          <CardDescription className="text-sm">
-                            Use these filters to refine your search queries. Combine filters with <code className="px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 font-mono text-xs">&&</code> (AND) or <code className="px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 font-mono text-xs">||</code> (OR)
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          {loadingFilters ? (
-                            <div className="flex items-center justify-center py-8">
-                              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                      <div className="bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-800 p-4">
+                        <div className="mb-4 flex items-start gap-4">
+                          <div className="flex-1">
+                            <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-1">Query Filters & Syntax</h3>
+                            <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                              Combine filters with <code className="px-1 py-0.5 rounded bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 font-mono text-xs">&&</code> (AND) or <code className="px-1 py-0.5 rounded bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 font-mono text-xs">||</code> (OR)
+                            </p>
+                          </div>
+                          <div className="w-64">
+                            <div className="relative">
+                              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                              <Input
+                                type="text"
+                                placeholder="Search filters..."
+                                className="pl-10 h-9"
+                                value={filterSearchTerm}
+                                onChange={(e) => setFilterSearchTerm(e.target.value)}
+                              />
                             </div>
-                          ) : (
-                            <div className="space-y-4 max-h-96 overflow-y-auto">
-                              {filterInfo.map((filter, idx) => (
-                                <div key={idx} className="border-b border-neutral-200 dark:border-neutral-700 pb-4 last:border-0">
+                          </div>
+                        </div>
+                        
+                        {loadingFilters ? (
+                          <div className="flex items-center justify-center py-8">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#5E81AC]"></div>
+                          </div>
+                        ) : (
+                          <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+                            {filterInfo
+                              .filter(filter => {
+                                if (!filterSearchTerm.trim()) return true;
+                                const searchLower = filterSearchTerm.toLowerCase();
+                                return filter.field.toLowerCase().includes(searchLower) || 
+                                       filter.description.toLowerCase().includes(searchLower);
+                              })
+                              .length === 0 ? (
+                                <div className="text-center py-8">
+                                  <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                                    No filters match &quot;{filterSearchTerm}&quot;
+                                  </p>
+                                </div>
+                              ) : (
+                                filterInfo
+                                  .filter(filter => {
+                                    if (!filterSearchTerm.trim()) return true;
+                                    const searchLower = filterSearchTerm.toLowerCase();
+                                    return filter.field.toLowerCase().includes(searchLower) || 
+                                           filter.description.toLowerCase().includes(searchLower);
+                                  })
+                                  .map((filter, idx) => (
+                              <div key={idx} className="bg-white dark:bg-neutral-950 rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
+                                <div className="mb-2">
+                                  <code className="text-sm font-semibold text-[#5E81AC] dark:text-[#88C0D0]">{filter.field}</code>
+                                  <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-relaxed">{filter.description}</p>
+                                </div>
+                                
+                                {filter.enum_values && filter.enum_values.length > 0 && (
                                   <div className="mb-2">
-                                    <span className="font-mono text-sm font-semibold text-[#5E81AC]">{filter.field}</span>
-                                    <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">{filter.description}</p>
-                                  </div>
-                                  {filter.enum_values && filter.enum_values.length > 0 && (
-                                    <div className="mb-2">
-                                      <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-1">Allowed values:</p>
-                                      <div className="flex flex-wrap gap-1">
-                                        {filter.enum_values.map((enumVal, enumIdx) => (
-                                          <span 
-                                            key={enumIdx} 
-                                            className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-mono"
-                                          >
-                                            {enumVal}
-                                          </span>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  )}
-                                  <div>
-                                    <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 mb-1">Examples:</p>
-                                    <div className="flex flex-wrap gap-2">
-                                      {filter.examples.map((example, exIdx) => (
-                                        <Badge 
-                                          key={exIdx} 
-                                          variant="outline" 
-                                          className="cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-800 font-mono text-xs"
-                                          onClick={() => setQuery(example)}
+                                    <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1.5">Allowed values:</p>
+                                    <div className="flex flex-wrap gap-1.5">
+                                      {filter.enum_values.map((enumVal, enumIdx) => (
+                                        <span 
+                                          key={enumIdx} 
+                                          className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-mono border border-neutral-200 dark:border-neutral-700"
                                         >
-                                          {example}
-                                        </Badge>
+                                          {enumVal}
+                                        </span>
                                       ))}
                                     </div>
                                   </div>
+                                )}
+                                
+                                <div>
+                                  <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1.5">Examples:</p>
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {filter.examples.map((example, exIdx) => (
+                                      <button
+                                        key={exIdx} 
+                                        onClick={() => setQuery(example)}
+                                        className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-[#5E81AC] hover:bg-[#4C6A94] text-white font-mono transition-colors cursor-pointer"
+                                      >
+                                        {example}
+                                      </button>
+                                    ))}
+                                  </div>
                                 </div>
-                              ))}
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
+                              </div>
+                            ))
+                            )}
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
                 </CardContent>
@@ -358,13 +395,20 @@ export default function MainPage() {
                   </Card>
                 )}
                 {!loading && !error && results.length === 0 && (
-                  <Card>
-                    <CardContent className="py-12">
-                      <div className="flex flex-col items-center justify-center gap-3">
-                        <Search className="h-8 w-8 text-neutral-400" />
-                        <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                          No results found. Try searching for a vulnerability.
-                        </p>
+                  <Card className="border-neutral-200 dark:border-neutral-800">
+                    <CardContent className="py-16">
+                      <div className="flex flex-col items-center justify-center gap-4">
+                        <div className="rounded-full bg-neutral-100 dark:bg-neutral-800 p-4">
+                          <Search className="h-8 w-8 text-neutral-400 dark:text-neutral-500" />
+                        </div>
+                        <div className="text-center">
+                          <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
+                            No results found
+                          </h3>
+                          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                            Try searching for a vulnerability using different keywords
+                          </p>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -427,6 +471,22 @@ export default function MainPage() {
                           <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
                             <h4 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">Type</h4>
                             <p className="text-sm text-neutral-900 dark:text-neutral-100 font-medium capitalize">{result.vulnerabilityType.replace(/_/g, ' ')}</p>
+                          </div>
+                        )}
+                        {result.publishedAt && (
+                          <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
+                            <h4 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">Published</h4>
+                            <p className="text-sm text-neutral-900 dark:text-neutral-100 font-medium">
+                              {new Date(result.publishedAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                            </p>
+                          </div>
+                        )}
+                        {result.updatedAt && (
+                          <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
+                            <h4 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">Updated</h4>
+                            <p className="text-sm text-neutral-900 dark:text-neutral-100 font-medium">
+                              {new Date(result.updatedAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                            </p>
                           </div>
                         )}
                       </div>
@@ -517,6 +577,26 @@ export default function MainPage() {
                           </ul>
                         </div>
                       )}
+
+                      {/* Nuclei Template URL */}
+                      {result.isTemplate && result.uri && (
+                        <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
+                          <h4 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-3">Nuclei Template</h4>
+                          <div className="flex items-start gap-2">
+                            <svg className="w-4 h-4 text-[#A3BE8C] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                            </svg>
+                            <a 
+                              href={`https://github.com/projectdiscovery/nuclei-templates/blob/main/${result.uri}`}
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="text-sm text-[#5E81AC] dark:text-[#5E81AC] hover:text-[#4C6A94] dark:hover:text-[#88C0D0] hover:underline break-all font-medium transition-colors"
+                            >
+                              {`https://github.com/projectdiscovery/nuclei-templates/blob/main/${result.uri}`}
+                            </a>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 }}
@@ -568,7 +648,7 @@ export default function MainPage() {
                         <p className="text-sm font-medium text-blue-900 dark:text-blue-200">
                           Your data is secure
                         </p>
-                        <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
+                        <p className="text-xs text-blue-900 dark:text-blue-200 leading-relaxed">
                           Your API key is stored locally in your browser and is never transmitted to our servers. All API requests are made directly to ProjectDiscovery.
                         </p>
                       </div>
@@ -583,7 +663,7 @@ export default function MainPage() {
                       </div>
                     )}
                     
-                    <Button onClick={handleApiKeySave} className="w-full">
+                    <Button onClick={handleApiKeySave} className="w-full bg-[#5E81AC] hover:bg-[#4C6A94] text-white">
                       <CheckCircle2 className="h-4 w-4 mr-2" />
                       Save Configuration
                     </Button>
