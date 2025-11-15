@@ -68,7 +68,7 @@ export function DataTable<TData, TValue>({
   })
 
   return (
-    <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-lg overflow-hidden bg-white dark:bg-neutral-950">
+    <div className="rounded-xl border border-border shadow-lg overflow-hidden bg-card text-card-foreground">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -127,7 +127,7 @@ export function DataTable<TData, TValue>({
                   ))}
                 </TableRow>
                 {row.getIsExpanded() && renderSubComponent && (
-                  <TableRow className="bg-neutral-50 dark:bg-neutral-900/50 hover:bg-neutral-50 dark:hover:bg-neutral-900/50">
+                  <TableRow className="bg-secondary/60 hover:bg-secondary">
                     <TableCell colSpan={columns.length} className="py-6">
                       {renderSubComponent({ row })}
                     </TableCell>
@@ -139,7 +139,7 @@ export function DataTable<TData, TValue>({
             <TableRow>
               <TableCell
                 colSpan={columns.length}
-                className="h-24 text-center text-neutral-500 dark:text-neutral-400"
+                className="h-24 text-center text-muted-foreground"
               >
                 No results.
               </TableCell>
@@ -149,8 +149,8 @@ export function DataTable<TData, TValue>({
       </Table>
 
       {/* Pagination Controls */}
-      <div className="flex items-center justify-between px-4 py-4 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-        <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
+      <div className="flex items-center justify-between px-4 py-4 border-t border-border bg-secondary/50">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>
             Page {table.getState().pagination.pageIndex + 1} of{" "}
             {table.getPageCount()} ({table.getFilteredRowModel().rows.length} results)
@@ -159,7 +159,7 @@ export function DataTable<TData, TValue>({
 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-neutral-600 dark:text-neutral-400">Show</span>
+            <span className="text-sm text-muted-foreground">Show</span>
             <Select
               value={`${table.getState().pagination.pageSize}`}
               onValueChange={(value) => {

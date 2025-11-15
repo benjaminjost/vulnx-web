@@ -149,24 +149,22 @@ export default function MainPage() {
   };
 
   return (
-    <div className="app-container">
+    <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
-      <header className="header">
-        <div className="container">
-          <div className="header-content">
-            <div className="logo-section flex items-center gap-3">
-              <h1 className="logo text-3xl font-bold">Vulnx</h1>
-              <Badge variant="secondary" className="text-xs">Web</Badge>
-            </div>
+      <header className="border-b border-border bg-card">
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-semibold tracking-tight text-primary">Vulnx</h1>
+            <Badge variant="secondary" className="text-xs">Web</Badge>
           </div>
         </div>
       </header>
 
       {/* Main content */}
-      <main className="main-content">
-        <div className="container">
+      <main className="flex-1">
+        <div className="mx-auto w-full max-w-5xl px-6 py-6">
           <Tabs defaultValue="explore" className="w-full">
-            <TabsList className="inline-flex mb-6">
+            <TabsList className="inline-flex mb-4">
               <TabsTrigger value="explore" className="flex items-center gap-2">
                 <Search className="h-4 w-4" />
                 Explore
@@ -181,18 +179,18 @@ export default function MainPage() {
             <TabsContent value="explore" className="space-y-6">
               {/* API Key Warning Banner */}
               {showApiBanner && (
-                <div className="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-900 rounded-lg p-4">
+                <div className="rounded-lg border border-status-high/40 bg-status-high/10 p-4">
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3 flex-1">
-                      <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-500 flex-shrink-0" />
-                      <p className="text-sm text-amber-900 dark:text-amber-100">
+                      <AlertCircle className="h-4 w-4 text-status-high flex-shrink-0" />
+                      <p className="text-sm text-foreground">
                         Please configure your API key in the settings tab to access vulnerability data.
                       </p>
                     </div>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 w-8 p-0 hover:bg-amber-100 dark:hover:bg-amber-900"
+                      className="h-8 w-8 p-0 hover:bg-status-high/20"
                       onClick={() => {
                         setShowApiBanner(false);
                         localStorage.setItem('vulnxBannerDismissed', 'true');
@@ -205,12 +203,12 @@ export default function MainPage() {
               )}
 
               {/* Search Section */}
-              <Card className="border-neutral-200 dark:border-neutral-800">
+              <Card className="border-border">
                 <CardContent className="pt-6">
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col sm:flex-row gap-3">
                       <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                           id="searchInput"
                           type="text"
@@ -235,7 +233,7 @@ export default function MainPage() {
                         <Button
                           onClick={handleSearch}
                           disabled={loading || !query.trim()}
-                          className="min-w-[100px] bg-[#5E81AC] hover:bg-[#4C6A94] text-white"
+                          className="min-w-[100px]"
                         >
                           <Search className="h-4 w-4" />
                           {loading ? 'Searching...' : 'Search'}
@@ -245,17 +243,17 @@ export default function MainPage() {
 
                     {/* Query Info Panel */}
                     {showFilters && (
-                      <div className="bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-800 p-4">
+                      <div className="rounded-lg border border-border bg-secondary p-4">
                         <div className="mb-4 flex items-start gap-4">
                           <div className="flex-1">
-                            <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-1">Query Filters & Syntax</h3>
-                            <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                              Combine filters with <code className="px-1 py-0.5 rounded bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 font-mono text-xs">&&</code> (AND) or <code className="px-1 py-0.5 rounded bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 font-mono text-xs">||</code> (OR)
+                            <h3 className="text-sm font-semibold text-foreground mb-1">Query Filters & Syntax</h3>
+                            <p className="text-xs text-muted-foreground">
+                              Combine filters with <code className="px-1 py-0.5 rounded bg-card border border-border font-mono text-xs">&&</code> (AND) or <code className="px-1 py-0.5 rounded bg-card border border-border font-mono text-xs">||</code> (OR)
                             </p>
                           </div>
                           <div className="w-64">
                             <div className="relative">
-                              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                               <Input
                                 type="text"
                                 placeholder="Search filters..."
@@ -269,7 +267,7 @@ export default function MainPage() {
 
                         {loadingFilters ? (
                           <div className="flex items-center justify-center py-8">
-                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#5E81AC]"></div>
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                           </div>
                         ) : (
                           <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
@@ -282,7 +280,7 @@ export default function MainPage() {
                               })
                               .length === 0 ? (
                               <div className="text-center py-8">
-                                <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                                <p className="text-sm text-muted-foreground">
                                   No filters match &quot;{filterSearchTerm}&quot;
                                 </p>
                               </div>
@@ -295,20 +293,20 @@ export default function MainPage() {
                                     filter.description.toLowerCase().includes(searchLower);
                                 })
                                 .map((filter, idx) => (
-                                  <div key={idx} className="bg-white dark:bg-neutral-950 rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
+                                  <div key={idx} className="rounded-lg border border-border bg-card p-3 shadow-sm">
                                     <div className="mb-2">
-                                      <code className="text-sm font-semibold text-[#5E81AC] dark:text-[#88C0D0]">{filter.field}</code>
-                                      <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-relaxed">{filter.description}</p>
+                                      <code className="text-sm font-semibold text-primary">{filter.field}</code>
+                                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{filter.description}</p>
                                     </div>
 
                                     {filter.enum_values && filter.enum_values.length > 0 && (
                                       <div className="mb-2">
-                                        <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1.5">Allowed values:</p>
+                                        <p className="text-xs font-medium text-muted-foreground mb-1.5">Allowed values:</p>
                                         <div className="flex flex-wrap gap-1.5">
                                           {filter.enum_values.map((enumVal, enumIdx) => (
                                             <span
                                               key={enumIdx}
-                                              className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-mono border border-neutral-200 dark:border-neutral-700"
+                                              className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-secondary text-foreground font-mono border border-border"
                                             >
                                               {enumVal}
                                             </span>
@@ -318,13 +316,13 @@ export default function MainPage() {
                                     )}
 
                                     <div>
-                                      <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1.5">Examples:</p>
+                                      <p className="text-xs font-medium text-muted-foreground mb-1.5">Examples:</p>
                                       <div className="flex flex-wrap gap-1.5">
                                         {filter.examples.map((example, exIdx) => (
                                           <button
                                             key={exIdx}
                                             onClick={() => setQuery(example)}
-                                            className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-[#5E81AC] hover:bg-[#4C6A94] text-white font-mono transition-colors cursor-pointer"
+                                            className="inline-flex items-center px-2 py-1 rounded-md border border-primary/30 bg-primary/10 text-xs font-mono text-primary hover:bg-primary/20 transition-colors"
                                           >
                                             {example}
                                           </button>
@@ -343,39 +341,39 @@ export default function MainPage() {
               </Card>
 
               {/* Results Table */}
-              <div className="table-container">
+              <div className="flex flex-col gap-6">
                 {loading && (
                   <Card>
                     <CardContent className="py-12">
                       <div className="flex flex-col items-center justify-center gap-3">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                        <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading results...</p>
+                        <p className="text-sm text-muted-foreground">Loading results...</p>
                       </div>
                     </CardContent>
                   </Card>
                 )}
                 {error && !loading && (
-                  <Card className="border-red-200 bg-red-50 dark:bg-red-950 dark:border-red-800">
+                  <Card className="border-status-critical/40 bg-status-critical/10">
                     <CardContent className="py-12">
                       <div className="flex flex-col items-center justify-center gap-3">
-                        <AlertCircle className="h-8 w-8 text-red-600 dark:text-red-400" />
-                        <p className="text-sm text-red-700 dark:text-red-300 font-medium">Error: {error}</p>
+                        <AlertCircle className="h-8 w-8 text-status-critical" />
+                        <p className="text-sm font-medium text-status-critical">Error: {error}</p>
                       </div>
                     </CardContent>
                   </Card>
                 )}
                 {!loading && !error && results.length === 0 && (
-                  <Card className="border-neutral-200 dark:border-neutral-800">
+                  <Card className="border-border">
                     <CardContent className="py-16">
                       <div className="flex flex-col items-center justify-center gap-4">
-                        <div className="rounded-full bg-neutral-100 dark:bg-neutral-800 p-4">
-                          <Search className="h-8 w-8 text-neutral-400 dark:text-neutral-500" />
+                        <div className="rounded-full bg-secondary p-4">
+                          <Search className="h-8 w-8 text-muted-foreground" />
                         </div>
                         <div className="text-center">
-                          <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
+                          <h3 className="text-base font-semibold text-foreground mb-1">
                             No results found
                           </h3>
-                          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                          <p className="text-sm text-muted-foreground">
                             Try searching for a vulnerability using different keywords
                           </p>
                         </div>
@@ -392,9 +390,9 @@ export default function MainPage() {
                       return (
                         <div className="space-y-4">
                           {/* Description */}
-                          <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
-                            <h4 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">Description</h4>
-                            <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                          <div className="bg-card rounded-lg p-4 border border-border">
+                            <h4 className="text-sm font-semibold text-foreground mb-2">Description</h4>
+                            <p className="text-sm text-muted-foreground leading-relaxed">
                               {result.description}
                             </p>
                           </div>
@@ -403,21 +401,21 @@ export default function MainPage() {
                           {(result.impact || result.remediation || result.requirements) && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {result.impact && (
-                                <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
-                                  <h4 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">Impact</h4>
-                                  <p className="text-sm text-neutral-900 dark:text-neutral-100 leading-relaxed">{result.impact}</p>
+                                <div className="bg-card rounded-lg p-4 border border-border">
+                                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Impact</h4>
+                                  <p className="text-sm text-foreground leading-relaxed">{result.impact}</p>
                                 </div>
                               )}
                               {result.remediation && (
-                                <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
-                                  <h4 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">Remediation</h4>
-                                  <p className="text-sm text-neutral-900 dark:text-neutral-100 leading-relaxed">{result.remediation}</p>
+                                <div className="bg-card rounded-lg p-4 border border-border">
+                                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Remediation</h4>
+                                  <p className="text-sm text-foreground leading-relaxed">{result.remediation}</p>
                                 </div>
                               )}
                               {result.requirements && (
-                                <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700 md:col-span-2">
-                                  <h4 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">Requirements</h4>
-                                  <p className="text-sm text-neutral-900 dark:text-neutral-100 leading-relaxed">{result.requirements}</p>
+                                <div className="bg-card rounded-lg p-4 border border-border md:col-span-2">
+                                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Requirements</h4>
+                                  <p className="text-sm text-foreground leading-relaxed">{result.requirements}</p>
                                 </div>
                               )}
                             </div>
@@ -426,35 +424,35 @@ export default function MainPage() {
                           {/* Details Grid */}
                           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             {result.vendor && (
-                              <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
-                                <h4 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">Vendor</h4>
-                                <p className="text-sm text-neutral-900 dark:text-neutral-100 font-medium">{result.vendor}</p>
+                              <div className="bg-card rounded-lg p-4 border border-border">
+                                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Vendor</h4>
+                                <p className="text-sm text-foreground font-medium">{result.vendor}</p>
                               </div>
                             )}
                             {result.product && (
-                              <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
-                                <h4 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">Product</h4>
-                                <p className="text-sm text-neutral-900 dark:text-neutral-100 font-medium">{result.product}</p>
+                              <div className="bg-card rounded-lg p-4 border border-border">
+                                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Product</h4>
+                                <p className="text-sm text-foreground font-medium">{result.product}</p>
                               </div>
                             )}
                             {result.vulnerabilityType && (
-                              <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
-                                <h4 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">Type</h4>
-                                <p className="text-sm text-neutral-900 dark:text-neutral-100 font-medium capitalize">{result.vulnerabilityType.replace(/_/g, ' ')}</p>
+                              <div className="bg-card rounded-lg p-4 border border-border">
+                                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Type</h4>
+                                <p className="text-sm text-foreground font-medium capitalize">{result.vulnerabilityType.replace(/_/g, ' ')}</p>
                               </div>
                             )}
                             {result.publishedAt && (
-                              <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
-                                <h4 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">Published</h4>
-                                <p className="text-sm text-neutral-900 dark:text-neutral-100 font-medium">
+                              <div className="bg-card rounded-lg p-4 border border-border">
+                                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Published</h4>
+                                <p className="text-sm text-foreground font-medium">
                                   {new Date(result.publishedAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                                 </p>
                               </div>
                             )}
                             {result.updatedAt && (
-                              <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
-                                <h4 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">Updated</h4>
-                                <p className="text-sm text-neutral-900 dark:text-neutral-100 font-medium">
+                              <div className="bg-card rounded-lg p-4 border border-border">
+                                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Updated</h4>
+                                <p className="text-sm text-foreground font-medium">
                                   {new Date(result.updatedAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                                 </p>
                               </div>
@@ -463,36 +461,48 @@ export default function MainPage() {
 
                           {/* Security Attributes */}
                           <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
-                              <h4 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">Patch Available</h4>
-                              <p className="text-sm text-neutral-900 dark:text-neutral-100 font-semibold">{result.isPatchAvailable ? '✓ Yes' : '✗ No'}</p>
+                            <div className="bg-card rounded-lg p-4 border border-border">
+                              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Patch Available</h4>
+                              <p className="text-sm text-foreground font-semibold">{result.isPatchAvailable ? '✓ Yes' : '✗ No'}</p>
                             </div>
-                            <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
-                              <h4 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">Attributes</h4>
+                            <div className="bg-card rounded-lg p-4 border border-border">
+                              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Attributes</h4>
                               <div className="flex flex-wrap gap-1">
-                                {result.isExploitSeen && <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-[#BF616A] text-white">Exploit Seen</span>}
-                                {result.isRemote && <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-[#5E81AC] text-white">Remote</span>}
-                                {result.isAuth && <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-[#D08770] text-white">Auth</span>}
-                                {result.isTemplate && <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-[#A3BE8C] text-white">Template</span>}
-                                {!result.isExploitSeen && !result.isRemote && !result.isAuth && !result.isTemplate && <span className="text-xs text-neutral-500">None</span>}
+                                {result.isExploitSeen && (
+                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-status-critical text-status-critical-foreground">
+                                    Exploit Seen
+                                  </span>
+                                )}
+                        {result.isRemote && <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-primary text-primary-foreground">Remote</span>}
+                                {result.isAuth && (
+                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-status-high text-status-high-foreground">
+                                    Auth
+                                  </span>
+                                )}
+                                {result.isTemplate && (
+                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-status-low text-status-low-foreground">
+                                    Template
+                                  </span>
+                                )}
+                                {!result.isExploitSeen && !result.isRemote && !result.isAuth && !result.isTemplate && <span className="text-xs text-muted-foreground">None</span>}
                               </div>
                             </div>
                           </div>
 
                           {result.vector && (
-                            <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
-                              <h4 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">Attack Vector (CVSS)</h4>
-                              <p className="text-sm text-neutral-900 dark:text-neutral-100 font-mono">{result.vector}</p>
+                            <div className="bg-card rounded-lg p-4 border border-border">
+                              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Attack Vector (CVSS)</h4>
+                              <p className="text-sm text-foreground font-mono">{result.vector}</p>
                             </div>
                           )}
 
                           {/* Weaknesses */}
                           {result.weaknesses.length > 0 && (
-                            <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
-                              <h4 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">Weaknesses (CWE)</h4>
+                            <div className="bg-card rounded-lg p-4 border border-border">
+                              <h4 className="text-sm font-semibold text-foreground mb-2">Weaknesses (CWE)</h4>
                               <div className="flex flex-wrap gap-2">
                                 {result.weaknesses.map((weakness, idx) => (
-                                  <span key={idx} className="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-[#EBCB8B] text-[#5A4A1F] dark:bg-[#EBCB8B] dark:text-[#2D250F]">
+                                  <span key={idx} className="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-status-medium text-status-medium-foreground">
                                     {weakness}
                                   </span>
                                 ))}
@@ -502,19 +512,19 @@ export default function MainPage() {
 
                           {/* PoC URLs */}
                           {result.pocUrls.length > 0 && (
-                            <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
-                              <h4 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-3">Proof of Concept (PoC)</h4>
+                            <div className="bg-card rounded-lg p-4 border border-border">
+                              <h4 className="text-sm font-semibold text-foreground mb-3">Proof of Concept (PoC)</h4>
                               <ul className="space-y-2">
                                 {result.pocUrls.map((poc, idx) => (
                                   <li key={idx} className="flex items-start gap-2">
-                                    <svg className="w-4 h-4 text-[#BF616A] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4 h-4 text-status-critical mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                     </svg>
                                     <a
                                       href={poc}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="text-sm text-[#5E81AC] dark:text-[#5E81AC] hover:text-[#4C6A94] dark:hover:text-[#88C0D0] hover:underline break-all font-medium transition-colors"
+                                      className="text-sm text-primary hover:text-primary/80 hover:underline break-all font-medium transition-colors"
                                     >
                                       {poc}
                                     </a>
@@ -526,19 +536,19 @@ export default function MainPage() {
 
                           {/* References */}
                           {result.references.length > 0 && (
-                            <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
-                              <h4 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-3">References</h4>
+                            <div className="bg-card rounded-lg p-4 border border-border">
+                              <h4 className="text-sm font-semibold text-foreground mb-3">References</h4>
                               <ul className="space-y-2">
                                 {result.references.slice(0, 5).map((ref, idx) => (
                                   <li key={idx} className="flex items-start gap-2">
-                                    <svg className="w-4 h-4 text-[#5E81AC] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                     </svg>
                                     <a
                                       href={ref}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="text-sm text-[#5E81AC] dark:text-[#5E81AC] hover:text-[#4C6A94] dark:hover:text-[#88C0D0] hover:underline break-all font-medium transition-colors"
+                                      className="text-sm text-primary hover:text-primary/80 hover:underline break-all font-medium transition-colors"
                                     >
                                       {ref}
                                     </a>
@@ -550,17 +560,17 @@ export default function MainPage() {
 
                           {/* Nuclei Template URL */}
                           {result.isTemplate && result.uri && (
-                            <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-700">
-                              <h4 className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-3">Nuclei Template</h4>
+                            <div className="bg-card rounded-lg p-4 border border-border">
+                              <h4 className="text-sm font-semibold text-foreground mb-3">Nuclei Template</h4>
                               <div className="flex items-start gap-2">
-                                <svg className="w-4 h-4 text-[#A3BE8C] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-4 h-4 text-status-low mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                                 </svg>
                                 <a
                                   href={`https://github.com/projectdiscovery/nuclei-templates/blob/main/${result.uri}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-sm text-[#5E81AC] dark:text-[#5E81AC] hover:text-[#4C6A94] dark:hover:text-[#88C0D0] hover:underline break-all font-medium transition-colors"
+                                className="text-sm text-primary hover:text-primary/80 hover:underline break-all font-medium transition-colors"
                                 >
                                   {`https://github.com/projectdiscovery/nuclei-templates/blob/main/${result.uri}`}
                                 </a>
@@ -577,7 +587,7 @@ export default function MainPage() {
 
             {/* Settings Tab */}
             <TabsContent value="settings" className="space-y-6">
-              <Card className="border-neutral-200 dark:border-neutral-800">
+              <Card className="border-border">
                 <CardHeader className="pb-4">
                   <div className="space-y-1.5">
                     <CardTitle className="text-xl">API Configuration</CardTitle>
@@ -588,7 +598,7 @@ export default function MainPage() {
                 </CardHeader>
                 <CardContent className="space-y-5">
                   <div className="space-y-3">
-                    <label htmlFor="apiKeyInput" className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                    <label htmlFor="apiKeyInput" className="text-sm font-semibold text-foreground">
                       API Key
                     </label>
                     <Input
@@ -599,41 +609,41 @@ export default function MainPage() {
                       onChange={(e) => setApiKey(e.target.value)}
                       className="font-mono text-sm"
                     />
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                    <p className="text-xs text-muted-foreground">
                       Get your API key from{' '}
                       <a
                         href="https://cloud.projectdiscovery.io"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[#5E81AC] dark:text-[#5E81AC] hover:text-[#4C6A94] dark:hover:text-[#88C0D0] hover:underline font-medium transition-colors"
+                        className="text-primary hover:text-primary/80 hover:underline font-medium transition-colors"
                       >
                         ProjectDiscovery Cloud
                       </a>
                     </p>
                   </div>
 
-                  <div className="flex items-start gap-3 p-4 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-900">
-                    <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-3 rounded-lg border border-border bg-secondary p-4">
+                    <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                     <div className="space-y-1">
-                      <p className="text-sm font-medium text-blue-900 dark:text-blue-200">
+                      <p className="text-sm font-medium text-foreground">
                         Your data is secure
                       </p>
-                      <p className="text-xs text-blue-900 dark:text-blue-200 leading-relaxed">
+                      <p className="text-xs text-muted-foreground leading-relaxed">
                         Your API key is stored locally in your browser and is never transmitted to our servers. All API requests are made directly to ProjectDiscovery.
                       </p>
                     </div>
                   </div>
 
                   {apiKeySaved && (
-                    <div className="flex items-center gap-3 p-4 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-900">
-                      <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                      <p className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">
+                    <div className="flex items-center gap-3 p-4 rounded-lg border border-status-low/40 bg-status-low/10">
+                      <CheckCircle2 className="h-5 w-5 text-status-low" />
+                      <p className="text-sm font-medium text-status-low">
                         API key saved successfully!
                       </p>
                     </div>
                   )}
 
-                  <Button onClick={handleApiKeySave} className="w-full bg-[#5E81AC] hover:bg-[#4C6A94] text-white">
+                  <Button onClick={handleApiKeySave} className="w-full">
                     <CheckCircle2 className="h-4 w-4 mr-2" />
                     Save Configuration
                   </Button>
@@ -641,7 +651,7 @@ export default function MainPage() {
               </Card>
 
               {/* Query Filters Management */}
-              <Card className="border-neutral-200 dark:border-neutral-800">
+              <Card className="border-border">
                 <CardHeader className="pb-4">
                   <div className="space-y-1.5">
                     <CardTitle className="text-xl">Query Filters</CardTitle>
@@ -651,13 +661,13 @@ export default function MainPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex items-start gap-3 p-4 rounded-lg bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700">
-                    <Info className="h-5 w-5 text-neutral-600 dark:text-neutral-400 flex-shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-3 rounded-lg border border-border bg-secondary p-4">
+                    <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                     <div className="space-y-1">
-                      <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                      <p className="text-sm font-medium text-foreground">
                         Filter information cached locally
                       </p>
-                      <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                      <p className="text-xs text-muted-foreground leading-relaxed">
                         Query filters are fetched from the API and stored in your browser for quick access. Click refresh to update with the latest filters.
                       </p>
                     </div>
@@ -674,7 +684,7 @@ export default function MainPage() {
                   </Button>
 
                   {filterInfo.length > 0 && (
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400 text-center">
+                    <p className="text-xs text-muted-foreground text-center">
                       {filterInfo.length} filters available
                     </p>
                   )}
@@ -686,13 +696,27 @@ export default function MainPage() {
       </main>
 
       {/* Footer */}
-      <footer className="footer">
-        <div className="footer-container">
-          <p>&copy; {new Date().getFullYear()} Vulnx Web. All rights reserved.</p>
-          <p className="footer-links">
-            Powered by <a href="https://github.com/projectdiscovery/cvemap" target="_blank" rel="noopener noreferrer">ProjectDiscovery Vulnerability API</a>
-            {' • '}
-            <a href="https://github.com/benjaminjost/vulnx-web" target="_blank" rel="noopener noreferrer">View Source on GitHub</a>
+      <footer className="border-t border-border bg-card">
+        <div className="mx-auto w-full max-w-5xl px-6 py-6 text-center text-xs sm:text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm">
+            Powered by {" "}
+            <a
+              href="https://github.com/projectdiscovery/cvemap"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-primary hover:text-primary/80 hover:underline"
+            >
+              ProjectDiscovery Vulnerability API
+            </a>
+            <span className="mx-1 text-muted-foreground/70">•</span>
+            <a
+              href="https://github.com/benjaminjost/vulnx-web"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-primary hover:text-primary/80 hover:underline"
+            >
+              View Source on GitHub
+            </a>
           </p>
         </div>
       </footer>
