@@ -1,7 +1,7 @@
 name: Deploy Worker
 on:
-  create:
-    tags: ['v*.*.*']
+  release:
+    types: [created]
 
 permissions:
   contents: read
@@ -15,7 +15,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Build & Deploy Worker
-        uses: cloudflare/wrangler-action@707f63750981584eb6abc365a50d441516fb04b8
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
