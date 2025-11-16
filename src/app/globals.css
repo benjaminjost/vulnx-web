@@ -85,7 +85,7 @@
   --color-chart-5: oklch(0.70 0.18 45);
 
   /* Status palette */
-  --color-status-critical: oklch(0.60 0.25 25);
+  --color-status-critical: oklch(0.52 0.20 20);
   --color-status-critical-foreground: oklch(0.98 0.01 250);
   --color-status-high: oklch(0.70 0.18 70);
   --color-status-high-foreground: oklch(0.98 0.01 250);
@@ -144,7 +144,7 @@
   }
 
   body {
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     background-color: var(--color-background);
     color: var(--color-foreground);
     line-height: 1.6;

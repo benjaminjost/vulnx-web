@@ -70,12 +70,14 @@ export class CVERecord {
     this.vector = typeof cvss_metrics === 'string' ? cvss_metrics : null;
 
     const weaknessesArray = Array.isArray(weaknesses) ? weaknesses : [];
-    this.weaknesses = weaknessesArray.map((w: any) => {
-      if (typeof w === 'object' && w !== null && typeof w.cwe_name === 'string') {
-        return w.cwe_name;
-      }
-      return String(w);
-    });
+    this.weaknesses = weaknessesArray
+      .map((w: any) => {
+        if (typeof w === 'object' && w !== null && typeof w.cwe_name === 'string') {
+          return w.cwe_name;
+        }
+        return String(w);
+      })
+      .filter((w: string) => w.trim() !== '');
 
     const citationsArray = Array.isArray(citations) ? citations : [];
     this.references = citationsArray.map((c: any) => {

@@ -10,6 +10,12 @@ import { columns } from '../components/cve-columns';
 import { DataTable } from '../components/data-table';
 import { CVERecord } from '../models/CVERecord';
 
+const sanitizeQueryInput = (value: string) =>
+  value.replace(/[^\w\s\-.:/"()@]/g, "").replace(/\s+/g, " ").slice(0, 200);
+
+const sanitizeApiKeyInput = (value: string) =>
+  value.replace(/[^A-Za-z0-9\-_\.]/g, "").slice(0, 128);
+
 type ThemeMode = 'light' | 'dark';
 
 export default function MainPage() {
@@ -69,7 +75,7 @@ export default function MainPage() {
     const storedFilters = localStorage.getItem('vulnxFilterInfo');
 
     if (storedKey) {
-      setApiKey(storedKey);
+      setApiKey(sanitizeApiKeyInput(storedKey));
     } else if (!bannerDismissed) {
       setShowApiBanner(true);
     }
@@ -120,14 +126,18 @@ export default function MainPage() {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query.trim()) return;
+    const cleanedQuery = sanitizeQueryInput(query).trim();
+    if (!cleanedQuery) return;
+    if (cleanedQuery !== query) {
+      setQuery(cleanedQuery);
+    }
 
     setLoading(true);
     setError(null);
     setResults([]);
 
     try {
-      let searchQuery = `(${query})`;
+      let searchQuery = `(${cleanedQuery})`;
 
       const encodedQuery = encodeURIComponent(searchQuery);
       const apiUrl = `https://api.projectdiscovery.io/v2/vulnerability/search?q=${encodedQuery}`;
@@ -177,8 +187,12 @@ export default function MainPage() {
   };
 
   const handleApiKeySave = () => {
-    if (apiKey.trim()) {
-      localStorage.setItem('vulnxApiKey', apiKey);
+    const cleanedKey = sanitizeApiKeyInput(apiKey).trim();
+    if (cleanedKey) {
+      if (cleanedKey !== apiKey) {
+        setApiKey(cleanedKey);
+      }
+      localStorage.setItem('vulnxApiKey', cleanedKey);
       setShowApiBanner(false);
       setApiKeySaved(true);
 
@@ -204,15 +218,28 @@ export default function MainPage() {
                 role="switch"
                 aria-checked={theme === 'dark'}
                 onClick={toggleTheme}
-                className="flex items-center gap-2 rounded-full border border-border bg-card/80 px-3 py-1 text-muted-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="flex items-center gap-1 rounded-full border border-border bg-card/80 px-1 py-1 text-muted-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
-                <Moon className={`h-3.5 w-3.5 ${theme === 'dark' ? 'text-primary' : 'text-muted-foreground/70'}`} />
-                <div className={`relative h-5 w-11 rounded-full transition-colors ${theme === 'dark' ? 'bg-primary/40' : 'bg-muted'}`}>
-                  <span
-                    className={`absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-card shadow transition-transform ${theme === 'dark' ? 'translate-x-6' : 'translate-x-1'}`}
-                  />
-                </div>
-                <Sun className={`h-3.5 w-3.5 ${theme === 'light' ? 'text-primary' : 'text-muted-foreground/70'}`} />
+                <span
+                  className={`flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium transition-colors ${
+                    theme === 'light'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground/70'
+                  }`}
+                >
+                  <Sun className="h-3.5 w-3.5" />
+                  Light
+                </span>
+                <span
+                  className={`flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium transition-colors ${
+                    theme === 'dark'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground/70'
+                  }`}
+                >
+                  <Moon className="h-3.5 w-3.5" />
+                  Dark
+                </span>
                 <span className="sr-only">Toggle color theme</span>
               </button>
             </div>
@@ -223,17 +250,18 @@ export default function MainPage() {
       {/* Main content */}
       <main className="flex-1">
         <div className="mx-auto w-full max-w-5xl px-6 py-6">
-          <Tabs defaultValue="explore" className="w-full">
-            <TabsList className="inline-flex mb-4">
-              <TabsTrigger value="explore" className="flex items-center gap-2">
-                <Search className="h-4 w-4" />
-                Explore
-              </TabsTrigger>
-              <TabsTrigger value="settings" className="flex items-center gap-2">
-                <Settings className="h-4 w-4" />
-                Settings
-              </TabsTrigger>
-            </TabsList>
+          {mounted && (
+            <Tabs defaultValue="explore" className="w-full">
+              <TabsList className="inline-flex mb-4">
+                <TabsTrigger value="explore" className="flex items-center gap-2">
+                  <Search className="h-4 w-4" />
+                  Explore
+                </TabsTrigger>
+                <TabsTrigger value="settings" className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  Settings
+                </TabsTrigger>
+              </TabsList>
 
             {/* Explore Tab */}
             <TabsContent value="explore" className="space-y-6">
@@ -272,10 +300,10 @@ export default function MainPage() {
                         <Input
                           id="searchInput"
                           type="text"
-                          placeholder="Search by product, vendor, CVE ID, or keywords..."
+                          placeholder="Search vulnerabilities by product, vendor, CVE ID..."
                           className="pl-10"
                           value={query}
-                          onChange={(e) => setQuery(e.target.value)}
+                          onChange={(e) => setQuery(sanitizeQueryInput(e.target.value))}
                           onKeyDown={(e) => e.key === 'Enter' && handleSearch(e)}
                         />
                       </div>
@@ -666,7 +694,7 @@ export default function MainPage() {
                       type="password"
                       placeholder="xxxxxxxxxxxxxxxxxxxxxxxx"
                       value={apiKey}
-                      onChange={(e) => setApiKey(e.target.value)}
+                      onChange={(e) => setApiKey(sanitizeApiKeyInput(e.target.value))}
                       className="font-mono text-sm"
                     />
                     <p className="text-xs text-muted-foreground">
@@ -752,6 +780,7 @@ export default function MainPage() {
               </Card>
             </TabsContent>
           </Tabs>
+          )}
         </div>
       </main>
 
