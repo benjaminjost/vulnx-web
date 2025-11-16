@@ -46,7 +46,7 @@ if (isProd) {
     {
       key: "Clear-Site-Data",
       value: '"cache", "cookies", "storage"',
-    }
+    },
   );
 }
 

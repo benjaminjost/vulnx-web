@@ -1,14 +1,15 @@
 <div align="center">
 
-<h1>vulnxWeb</h1> 
+<h1>vulnxWeb</h1>
 
-<p>Minimal web application for searching and exploring Common Vulnerabilities and Exposures (CVEs) </p>
+<p>Minimal web application for searching and exploring Common Vulnerabilities and Exposures (CVEs)</p>
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![shadcn/ui](https://img.shields.io/badge/shadcn%2Fui-18181B?logo=shadcnui&logoColor=white)](https://ui.shadcn.com/)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare_Workers-F38020?logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
 
 </div>
-
 
 ## Quick Start
 
@@ -18,92 +19,83 @@
 
 ### Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/benjaminjost/vulnx-web.git
-   cd vulnx-web
-   ```
+```bash
+git clone https://github.com/benjaminjost/vulnx-web.git
+cd vulnx-web
+npm install   # or pnpm install / yarn install
+npm run dev   # http://localhost:3000
+```
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   # or
-   yarn install
-   # or
-   pnpm install
-   ```
+### Configure API Key
 
-3. **Run the development server**
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   # or
-   pnpm dev
-   ```
-
-4. **Open in browser**
-   - Navigate to [http://localhost:3000](http://localhost:3000)
-
-5. **Configure API Key**
-   - Click the **Settings** button in the top-right corner
-   - Enter your ProjectDiscovery API key
-   - Click **Save Configuration**
+1. Open the app and go to the **Settings** tab.
+2. Paste your ProjectDiscovery API key.
+3. Click **Save Configuration** (stored in `localStorage` only).
 
 ## Usage
 
 ### Searching for Vulnerabilities
 
-1. **Select Search Type**: Choose from Product, CVE ID, or Vendor in the dropdown
-2. **Enter Search Term**: Type your query in the search bar
-3. **Apply Filters** (Optional): Click the Filters button to refine results by severity or date
-4. **View Results**: Click on any CVE row to expand and view detailed information
+1. Type a query (e.g., `vendor:microsoft && severity:high`).
+2. Click **Query Info** to discover filter names, syntax, and quick inserts.
+3. Press **Search** (or Enter). Results populate the table.
+4. Click a row to expand detailed metadata, PoCs, Nuclei templates, etc.
 
-### Example Searches
+#### Example Queries
 
-- **By Product**: `Apache Struts`, `WordPress`, `OpenSSL`
-- **By CVE ID**: `CVE-2024-1234`, `CVE-2023-*`
-- **By Vendor**: `Microsoft`, `Google`, `Adobe`
+```text
+product:openssl && severity:critical
+cve_id:CVE-2024-1234
+vendor:adobe && isTemplate:true
+```
 
 ## Project Structure
 
 ```
 vulnx-web/
-├── app/                # Next.js app directory
-│   ├── layout.tsx      # Root layout
-│   ├── page.tsx        # Home page
-│   └── globals.css     # Global styles
-├── components/         # React components
-│   ├── searchbar.tsx   # Search bar and filters
-│   ├── settings.tsx    # API configuration panel
-│   └── table.tsx       # CVE results table
-├── public/             # Static assets
-├── package.json        # Dependencies
-├── next.config.js      # Next.js configuration
-├── tsconfig.json       # TypeScript configuration
-├── LICENSE             # MIT license
-└── README.md           # Project documentation
+├── src/
+│   ├── app/               # Next.js app router (home, layout, sitemap, robots)
+│   ├── components/        # UI primitives and data table helpers
+│   └── models/            # CVE record model logic
+├── public/                # Static assets incl. theme-init script
+├── next.config.ts         # Next.js configuration
+├── open-next.config.ts    # Cloudflare Workers deployment config
+├── package.json
+├── tsconfig.json
+└── README.md
 ```
+
+## Security & Privacy
+
+- API keys are kept client-side (`localStorage`).
+- Requests go directly from the browser to ProjectDiscovery’s API.
 
 ## Data Sources
 
-Vulnx Web leverages the [CVEMap](https://github.com/projectdiscovery/cvemap) tool by ProjectDiscovery, which aggregates vulnerability data from multiple authoritative sources:
+Vulnx Web uses [ProjectDiscovery’s CVEMap](https://github.com/projectdiscovery/cvemap), which aggregates:
 
-- **[National Vulnerability Database (NVD)](https://nvd.nist.gov/developers)** - Comprehensive CVE vulnerability data
-- **[Known Exploited Vulnerabilities (KEV)](https://www.cisa.gov/known-exploited-vulnerabilities-catalog)** - CISA's catalog of actively exploited vulnerabilities
-- **[HackerOne](https://hackerone.com/hacktivity/cve_discovery)** - CVE discoveries and disclosures
-- **[Trickest CVE](https://github.com/trickest/cve) / [PoC-in-GitHub](https://github.com/nomi-sec/PoC-in-GitHub/)** - Proof-of-Concept references from GitHub
+- [NVD](https://nvd.nist.gov/developers) – primary CVE feed
+- [CISA KEV](https://www.cisa.gov/known-exploited-vulnerabilities-catalog) – known exploited vulnerabilities
+- [HackerOne](https://hackerone.com/hacktivity/cve_discovery) – disclosure feeds
+- [Trickest CVE](https://github.com/trickest/cve) / [PoC-in-GitHub](https://github.com/nomi-sec/PoC-in-GitHub/) – PoC references
+
+## Deployment
+
+```bash
+npm run build             # Next.js production build
+npm run preview           # OpenNext Cloudflare preview
+npm run deploy            # Deploy via OpenNext -> Cloudflare Workers
+```
+
+Adjust `wrangler.jsonc` for custom domains or caching rules.
 
 ## Contributing
 
-Contributions are welcome! If you would like to contribute to this project:
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/my-improvement`)
+3. Commit your changes (`git commit -m "feat: improve X"`)
+4. Push and open a Pull Request
 
 ## License
 
-Distributed under the MIT License. See [`LICENSE`](LICENSE) for more information.
+Distributed under the MIT License. See [`LICENSE`](LICENSE) for details.

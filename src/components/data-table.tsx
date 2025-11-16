@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   ColumnDef,
@@ -11,17 +11,17 @@ import {
   PaginationState,
   SortingState,
   useReactTable,
-} from "@tanstack/react-table"
-import * as React from "react"
+} from "@tanstack/react-table";
+import * as React from "react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -29,13 +29,21 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react"
+} from "@/components/ui/table";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
-  renderSubComponent?: (props: { row: any }) => React.ReactElement
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+  renderSubComponent?: (props: { row: any }) => React.ReactElement;
 }
 
 export function DataTable<TData, TValue>({
@@ -43,12 +51,12 @@ export function DataTable<TData, TValue>({
   data,
   renderSubComponent,
 }: Readonly<DataTableProps<TData, TValue>>) {
-  const [expanded, setExpanded] = React.useState<ExpandedState>({})
-  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [expanded, setExpanded] = React.useState<ExpandedState>({});
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  })
+  });
 
   const table = useReactTable({
     data,
@@ -65,7 +73,7 @@ export function DataTable<TData, TValue>({
       pagination,
       sorting,
     },
-  })
+  });
 
   return (
     <div className="rounded-2xl border border-border/70 shadow-lg overflow-hidden bg-card text-card-foreground">
@@ -85,9 +93,9 @@ export function DataTable<TData, TValue>({
                   >
                     {(() => {
                       if (header.isPlaceholder) {
-                        return null
+                        return null;
                       }
-                      
+
                       if (header.column.getCanSort()) {
                         return (
                           <button
@@ -97,31 +105,34 @@ export function DataTable<TData, TValue>({
                           >
                             {flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                             <span className="ml-2">
                               {(() => {
-                                const sortDirection = header.column.getIsSorted()
+                                const sortDirection =
+                                  header.column.getIsSorted();
                                 if (sortDirection === "asc") {
-                                  return <ArrowUp className="h-4 w-4" />
+                                  return <ArrowUp className="h-4 w-4" />;
                                 }
                                 if (sortDirection === "desc") {
-                                  return <ArrowDown className="h-4 w-4" />
+                                  return <ArrowDown className="h-4 w-4" />;
                                 }
-                                return <ArrowUpDown className="h-4 w-4 opacity-50" />
+                                return (
+                                  <ArrowUpDown className="h-4 w-4 opacity-50" />
+                                );
                               })()}
                             </span>
                           </button>
-                        )
+                        );
                       }
-                      
+
                       return flexRender(
                         header.column.columnDef.header,
-                        header.getContext()
-                      )
+                        header.getContext(),
+                      );
                     })()}
                   </TableHead>
-                )
+                );
               })}
             </TableRow>
           ))}
@@ -146,7 +157,7 @@ export function DataTable<TData, TValue>({
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -180,7 +191,8 @@ export function DataTable<TData, TValue>({
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>
             Page {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()} ({table.getFilteredRowModel().rows.length} results)
+            {table.getPageCount()} ({table.getFilteredRowModel().rows.length}{" "}
+            results)
           </span>
         </div>
 
@@ -190,11 +202,13 @@ export function DataTable<TData, TValue>({
             <Select
               value={`${table.getState().pagination.pageSize}`}
               onValueChange={(value) => {
-                table.setPageSize(Number(value))
+                table.setPageSize(Number(value));
               }}
             >
               <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue placeholder={table.getState().pagination.pageSize} />
+                <SelectValue
+                  placeholder={table.getState().pagination.pageSize}
+                />
               </SelectTrigger>
               <SelectContent side="top">
                 {[10, 25, 50, 100].map((pageSize) => (
@@ -243,5 +257,5 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
     </div>
-  )
+  );
 }
