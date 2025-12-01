@@ -88,8 +88,6 @@ export async function searchCVE(
 
     const data = await response.json();
 
-    console.log(data)
-
     if (data && typeof data === "object" && Array.isArray(data.results)) {
       const cveRecords = data.results.map((item: any) => new CVERecord(item));
 
