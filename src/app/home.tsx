@@ -178,7 +178,7 @@ export default function MainPage() {
 
     setSearchHistory((prev) => {
       const filtered = prev.filter((item) => item !== trimmedQuery);
-      const updated = [trimmedQuery, ...filtered].slice(0, 10);
+      const updated = [trimmedQuery, ...filtered].slice(0, 6);
       localStorage.setItem("vulnxSearchHistory", JSON.stringify(updated));
       return updated;
     });
@@ -474,7 +474,6 @@ export default function MainPage() {
                             }
                           }}
                           onBlur={() => {
-                            // Delay to allow click on history items
                             setTimeout(() => setShowHistory(false), 200);
                           }}
                         />

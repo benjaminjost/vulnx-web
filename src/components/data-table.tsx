@@ -9,6 +9,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   PaginationState,
+  RowSelectionState,
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
@@ -53,6 +54,7 @@ export function DataTable<TData, TValue>({
 }: Readonly<DataTableProps<TData, TValue>>) {
   const [expanded, setExpanded] = React.useState<ExpandedState>({});
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -68,12 +70,59 @@ export function DataTable<TData, TValue>({
     onExpandedChange: setExpanded,
     onPaginationChange: setPagination,
     onSortingChange: setSorting,
+    onRowSelectionChange: setRowSelection,
     state: {
       expanded,
       pagination,
       sorting,
+      rowSelection,
     },
   });
+
+  const handleExportSelected = () => {
+    const selectedRows = table.getFilteredSelectedRowModel().rows;
+    const selectedData = selectedRows.map((row) => row.original);
+    const jsonStr = JSON.stringify(selectedData, null, 2);
+    const blob = new Blob([jsonStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `cve-export-${new Date().toISOString().split("T")[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportCSV = () => {
+    const selectedRows = table.getFilteredSelectedRowModel().rows;
+    const selectedData = selectedRows.map((row) => row.original);
+    
+    if (selectedData.length === 0) return;
+
+    const headers = Object.keys(selectedData[0] as Record<string, any>);
+    const csvRows = [headers.join(",")];
+
+    for (const row of selectedData) {
+      const values = headers.map((header) => {
+        const value = (row as any)[header];
+        const escaped = String(value ?? "").replaceAll('"', '""');
+        return `"${escaped}"`;
+      });
+      csvRows.push(values.join(","));
+    }
+
+    const csvStr = csvRows.join("\n");
+    const blob = new Blob([csvStr], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `cve-export-${new Date().toISOString().split("T")[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="rounded-2xl border border-border/70 shadow-lg overflow-hidden bg-card text-card-foreground">
@@ -188,12 +237,35 @@ export function DataTable<TData, TValue>({
 
       {/* Pagination Controls */}
       <div className="flex items-center justify-between px-5 py-4 border-t border-border bg-secondary/40">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()} ({table.getFilteredRowModel().rows.length}{" "}
-            results)
-          </span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>
+              Page {table.getState().pagination.pageIndex + 1} of{" "}
+              {table.getPageCount()} ({table.getFilteredRowModel().rows.length}{" "}
+              results)
+            </span>
+          </div>
+          {table.getFilteredSelectedRowModel().rows.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                {table.getFilteredSelectedRowModel().rows.length} selected
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportSelected}
+              >
+                Export JSON
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportCSV}
+              >
+                Export CSV
+              </Button>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-4">
