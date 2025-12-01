@@ -25,6 +25,7 @@ export class CVERecord {
   isExploitSeen: boolean;
   isTemplate: boolean;
   uri: string | null;
+  vulnerabilityImpact: string[];
 
   constructor({
     cve_id,
@@ -51,6 +52,7 @@ export class CVERecord {
     is_exploit_seen,
     is_template,
     uri,
+    vulnerability_impact = [],
   }: Record<string, unknown>) {
     this.cveId = typeof cve_id === "string" ? cve_id : "";
     this.name = typeof name === "string" ? name : "";
@@ -92,7 +94,9 @@ export class CVERecord {
           w !== null &&
           typeof w.cwe_name === "string"
         ) {
-          return w.cwe_name;
+          const cweName = w.cwe_name;
+          const cweId = typeof w.cwe_id === "string" ? w.cwe_id : null;
+          return cweId ? `${cweId}: ${cweName}` : cweName;
         }
         return String(w);
       })
@@ -129,5 +133,12 @@ export class CVERecord {
       typeof is_exploit_seen === "boolean" ? is_exploit_seen : false;
     this.isTemplate = typeof is_template === "boolean" ? is_template : false;
     this.uri = typeof uri === "string" ? uri : null;
+
+    const vulnerabilityImpactArray = Array.isArray(vulnerability_impact)
+      ? vulnerability_impact
+      : [];
+    this.vulnerabilityImpact = vulnerabilityImpactArray
+      .map((v: any) => String(v))
+      .filter((v: string) => v.trim() !== "");
   }
 }

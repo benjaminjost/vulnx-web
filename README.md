@@ -41,6 +41,7 @@ The application works without an API key but with rate limits. For better perfor
 2. Click **Query Info** to discover filter names, syntax, and quick inserts.
 3. Press **Search** (or Enter). Results populate the table.
 4. Click a row to expand detailed metadata, PoCs, Nuclei templates, etc.
+5. Click a CVE ID to open the detailed CVE page.
 
 #### Example Queries
 
@@ -50,21 +51,61 @@ cve_id:CVE-2024-1234
 vendor:adobe && isTemplate:true
 ```
 
+#### Shareable Search Links
+
+Search queries are automatically encoded in the URL, allowing you to share direct links to specific searches:
+
+```text
+https://your-domain.com/?q=cHJvZHVjdD1teXNxbA==
+```
+
+The query parameter `q` contains a base64-encoded search string that auto-triggers the search on page load.
+
+### CVE Detail Pages
+
+Access comprehensive vulnerability information for any CVE:
+
+```text
+https://your-domain.com/CVE-2025-1234
+https://your-domain.com/CVE-2025-5678
+```
+
 ## Project Structure
 
 ```
 vulnx-web/
 ├── src/
-│   ├── app/               # Next.js app router (home, layout, sitemap, robots)
-│   ├── components/        # UI primitives and data table helpers
-│   └── models/            # CVE record model logic
-├── public/                # Static assets incl. theme-init script
-├── next.config.ts         # Next.js configuration
-├── open-next.config.ts    # Cloudflare Workers deployment config
-├── package.json
-├── tsconfig.json
-└── README.md
+│   ├── app/
+│   │   ├── [cveId]/       # Dynamic CVE detail route
+│   │   ├── home.tsx       # Main search page implementation
+│   │   ├── layout.tsx     # Root layout with theme provider
+│   │   ├── page.tsx       # Main page wrapper
+│   │   ├── robots.ts      # Robots.txt generation
+│   │   └── sitemap.ts     # Sitemap generation
+│   ├── components/
+│   │   ├── cve-columns.tsx    # Table column definitions
+│   │   ├── cve-details.tsx    # Shared CVE details component
+│   │   ├── cve-header.tsx     # CVE header component
+│   │   ├── data-table.tsx     # Reusable data table
+│   │   ├── header.tsx         # App header with theme toggle
+│   │   ├── footer.tsx         # App footer
+│   │   └── ui/                # shadcn/ui components
+│   ├── lib/
+│   │   └── projectdiscovery-api.ts  # API integration
+│   └── models/
+│       └── CVERecord.ts       # CVE data model
+├── public/                    # Static assets
+├── next.config.ts             # Next.js configuration
+├── open-next.config.ts        # Cloudflare Workers config
+├── wrangler.jsonc             # Cloudflare deployment
+└── package.json
 ```
+
+## Routes
+
+- **`/`** — Main search interface with CVE query functionality
+- **`/{CVEID}`** — Detailed CVE page (e.g., `/CVE-2025-1234`)
+- **`/?q={base64}`** — Pre-populated search with auto-trigger
 
 ## Security & Privacy
 
