@@ -15,6 +15,7 @@ export interface FilterInfo {
   description: string;
   examples: string[];
   enum_values?: string[];
+  data_type?: string;
 }
 
 export interface FilterResult {
@@ -159,6 +160,7 @@ export async function fetchFilters(): Promise<FilterResult> {
           description: item.description,
           examples: item.examples,
           enum_values: item.enum_values || undefined,
+          data_type: item.data_type || undefined,
         }));
 
       return {

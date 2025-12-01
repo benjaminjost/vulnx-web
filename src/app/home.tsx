@@ -624,30 +624,32 @@ export default function MainPage() {
                     {/* Query Info Panel */}
                     {showFilters && (
                       <div className="rounded-lg border border-border bg-secondary p-4">
-                        <div className="mb-4 flex items-start gap-4">
+                        <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
                           <div className="flex-1">
-                            <h3 className="text-sm font-semibold text-foreground mb-1">
+                            <h3 className="text-sm font-semibold text-foreground mb-1.5">
                               Query Filters & Syntax
                             </h3>
-                            <p className="text-xs text-muted-foreground">
-                              Combine filters with{" "}
-                              <code className="px-1 py-0.5 rounded bg-card border border-border font-mono text-xs">
-                                &&
-                              </code>{" "}
-                              (AND) or{" "}
-                              <code className="px-1 py-0.5 rounded bg-card border border-border font-mono text-xs">
-                                ||
-                              </code>{" "}
-                              (OR)
-                            </p>
+                            <div className="space-y-1 text-xs text-muted-foreground">
+                              <p>
+                                Combine with{" "}
+                                <code className="px-1 py-0.5 rounded bg-card border border-border font-mono">
+                                  &&
+                                </code>{" "}
+                                (AND) or{" "}
+                                <code className="px-1 py-0.5 rounded bg-card border border-border font-mono">
+                                  ||
+                                </code>{" "}
+                                (OR) • Click examples to use them
+                              </p>
+                            </div>
                           </div>
-                          <div className="w-64">
+                          <div className="w-full sm:w-72">
                             <div className="relative">
                               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                               <Input
                                 type="text"
                                 placeholder="Search filters..."
-                                className="pl-10 h-9"
+                                className="pl-10 h-10 bg-card focus:border-primary"
                                 value={filterSearchTerm}
                                 onChange={(e) =>
                                   setFilterSearchTerm(e.target.value)
@@ -662,7 +664,7 @@ export default function MainPage() {
                             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                           </div>
                         ) : (
-                          <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+                          <div className="space-y-2.5 max-h-96 overflow-y-auto pr-2">
                             {filterInfo.filter((filter) => {
                               if (!filterSearchTerm.trim()) return true;
                               const searchLower =
@@ -700,15 +702,22 @@ export default function MainPage() {
                                 .map((filter, idx) => (
                                   <div
                                     key={idx}
-                                    className="rounded-lg border border-border bg-card p-3 shadow-sm"
+                                    className="rounded-lg border border-border bg-card p-3 shadow-sm hover:shadow transition-shadow"
                                   >
-                                    <div className="mb-2">
-                                      <code className="text-sm font-semibold text-primary">
-                                        {filter.field}
-                                      </code>
-                                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                                        {filter.description}
-                                      </p>
+                                    <div className="flex items-start justify-between gap-2 mb-2">
+                                      <div className="flex-1 min-w-0">
+                                        <code className="text-sm font-semibold text-primary">
+                                          {filter.field}
+                                        </code>
+                                        <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                                          {filter.description}
+                                        </p>
+                                      </div>
+                                      {filter.data_type && (
+                                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-muted text-muted-foreground font-medium shrink-0">
+                                          {filter.data_type}
+                                        </span>
+                                      )}
                                     </div>
 
                                     {filter.enum_values &&
@@ -717,15 +726,28 @@ export default function MainPage() {
                                           <p className="text-xs font-medium text-muted-foreground mb-1.5">
                                             Allowed values:
                                           </p>
-                                          <div className="flex flex-wrap gap-1.5">
+                                          <div className="flex flex-wrap gap-1">
                                             {filter.enum_values.map(
                                               (enumVal, enumIdx) => (
-                                                <span
-                                                  key={enumIdx}
-                                                  className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-secondary text-foreground font-mono border border-border"
-                                                >
-                                                  {enumVal}
-                                                </span>
+                                                <TooltipProvider key={enumIdx}>
+                                                  <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                      <button
+                                                        onClick={() =>
+                                                          setQuery(
+                                                            `${filter.field}:${enumVal}`
+                                                          )
+                                                        }
+                                                        className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-secondary text-foreground font-mono border border-border hover:bg-secondary/80 hover:border-primary/50 transition-colors cursor-pointer"
+                                                      >
+                                                        {enumVal}
+                                                      </button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                      <p>Click to search {filter.field}:{enumVal}</p>
+                                                    </TooltipContent>
+                                                  </Tooltip>
+                                                </TooltipProvider>
                                               ),
                                             )}
                                           </div>
@@ -736,16 +758,27 @@ export default function MainPage() {
                                       <p className="text-xs font-medium text-muted-foreground mb-1.5">
                                         Examples:
                                       </p>
-                                      <div className="flex flex-wrap gap-1.5">
+                                      <div className="flex flex-col gap-1">
                                         {filter.examples.map(
                                           (example, exIdx) => (
-                                            <button
-                                              key={exIdx}
-                                              onClick={() => setQuery(example)}
-                                              className="inline-flex items-center px-2 py-1 rounded-md border border-primary/30 bg-primary/10 text-xs font-mono text-primary hover:bg-primary/20 transition-colors"
-                                            >
-                                              {example}
-                                            </button>
+                                            <TooltipProvider key={exIdx}>
+                                              <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                  <button
+                                                    onClick={() => setQuery(example)}
+                                                    className="flex items-center justify-between px-2.5 py-1.5 rounded border border-primary/30 bg-primary/5 hover:bg-primary/15 transition-colors group"
+                                                  >
+                                                    <code className="text-xs font-mono text-primary flex-1 text-left">
+                                                      {example}
+                                                    </code>
+                                                    <ArrowUpRight className="h-3 w-3 text-primary opacity-0 group-hover:opacity-100 transition-opacity ml-2 shrink-0" />
+                                                  </button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                  <p>Click to use this query</p>
+                                                </TooltipContent>
+                                              </Tooltip>
+                                            </TooltipProvider>
                                           ),
                                         )}
                                       </div>
