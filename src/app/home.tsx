@@ -7,8 +7,28 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   fetchFilters,
   searchCVE,
@@ -16,11 +36,15 @@ import {
 } from "@/lib/projectdiscovery-api";
 import {
   AlertCircle,
+  ArrowUpRight,
+  Bookmark,
   CheckCircle2,
   Filter,
   Info,
+  Pencil,
   Search,
   Settings,
+  Star,
   X,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -41,6 +65,13 @@ const sanitizeQueryInput = (value: string) =>
 const sanitizeApiKeyInput = (value: string) =>
   value.replaceAll(/[^A-Za-z0-9\-_.]/g, "").slice(0, 128);
 
+interface SavedQuery {
+  id: string;
+  name: string;
+  query: string;
+  createdAt: number;
+}
+
 export default function MainPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -55,6 +86,17 @@ export default function MainPage() {
   const [filterInfo, setFilterInfo] = useState<FilterInfo[]>([]);
   const [loadingFilters, setLoadingFilters] = useState(false);
   const [filterSearchTerm, setFilterSearchTerm] = useState("");
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
+  const [savedQueries, setSavedQueries] = useState<SavedQuery[]>([]);
+  const [editingQueryId, setEditingQueryId] = useState<string | null>(null);
+  const [editingQueryName, setEditingQueryName] = useState("");
+  const [editingQueryText, setEditingQueryText] = useState("");
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [saveDialogQueryName, setSaveDialogQueryName] = useState("");
+  const [saveDialogQueryText, setSaveDialogQueryText] = useState("");
 
   useEffect(() => {
     const qParam = searchParams.get("q");
@@ -78,6 +120,8 @@ export default function MainPage() {
     const storedKey = localStorage.getItem("vulnxApiKey");
     const bannerDismissed = localStorage.getItem("vulnxBannerDismissed");
     const storedFilters = localStorage.getItem("vulnxFilterInfo");
+    const storedHistory = localStorage.getItem("vulnxSearchHistory");
+    const storedSavedQueries = localStorage.getItem("vulnxSavedQueries");
 
     if (storedKey) {
       setApiKey(sanitizeApiKeyInput(storedKey));
@@ -95,6 +139,22 @@ export default function MainPage() {
     } else {
       fetchFilterInfo();
     }
+
+    if (storedHistory) {
+      try {
+        setSearchHistory(JSON.parse(storedHistory));
+      } catch (e) {
+        console.error("Failed to parse search history", e);
+      }
+    }
+
+    if (storedSavedQueries) {
+      try {
+        setSavedQueries(JSON.parse(storedSavedQueries));
+      } catch (e) {
+        console.error("Failed to parse saved queries", e);
+      }
+    }
   }, []);
 
   const fetchFilterInfo = async () => {
@@ -110,6 +170,27 @@ export default function MainPage() {
     }
 
     setLoadingFilters(false);
+  };
+
+  const addToSearchHistory = (searchQuery: string) => {
+    const trimmedQuery = searchQuery.trim();
+    if (!trimmedQuery) return;
+
+    setSearchHistory((prev) => {
+      const filtered = prev.filter((item) => item !== trimmedQuery);
+      const updated = [trimmedQuery, ...filtered].slice(0, 10);
+      localStorage.setItem("vulnxSearchHistory", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const removeFromSearchHistory = (historyItem: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSearchHistory((prev) => {
+      const updated = prev.filter((item) => item !== historyItem);
+      localStorage.setItem("vulnxSearchHistory", JSON.stringify(updated));
+      return updated;
+    });
   };
 
   const performSearch = async (searchQuery: string) => {
@@ -141,6 +222,10 @@ export default function MainPage() {
     const encodedQuery = btoa(cleanedQuery);
     router.push(`/?q=${encodedQuery}`);
 
+    addToSearchHistory(cleanedQuery);
+    setShowHistory(false);
+    setHistoryIndex(-1);
+
     await performSearch(cleanedQuery);
   };
 
@@ -166,6 +251,152 @@ export default function MainPage() {
     setApiKeySaved(false);
   };
 
+  const handleSearchInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (!showHistory && searchHistory.length > 0) {
+        setShowHistory(true);
+        setHistoryIndex(0);
+      } else if (historyIndex < searchHistory.length - 1) {
+        setHistoryIndex(historyIndex + 1);
+      }
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (historyIndex > 0) {
+        setHistoryIndex(historyIndex - 1);
+      } else if (historyIndex === 0) {
+        setHistoryIndex(-1);
+      }
+    } else if (e.key === "Enter") {
+      if (historyIndex >= 0 && searchHistory[historyIndex]) {
+        e.preventDefault();
+        setQuery(searchHistory[historyIndex]);
+        setShowHistory(false);
+        setHistoryIndex(-1);
+        setTimeout(() => {
+          const cleanedQuery = sanitizeQueryInput(searchHistory[historyIndex]).trim();
+          if (cleanedQuery) {
+            const encodedQuery = btoa(cleanedQuery);
+            router.push(`/?q=${encodedQuery}`);
+            performSearch(cleanedQuery);
+          }
+        }, 0);
+      } else {
+        handleSearch(e);
+      }
+    } else if (e.key === "Escape") {
+      setShowHistory(false);
+      setHistoryIndex(-1);
+    }
+  };
+
+  const handleHistoryItemClick = (historyItem: string) => {
+    setQuery(historyItem);
+    setShowHistory(false);
+    setHistoryIndex(-1);
+    const cleanedQuery = sanitizeQueryInput(historyItem).trim();
+    if (cleanedQuery) {
+      const encodedQuery = btoa(cleanedQuery);
+      router.push(`/?q=${encodedQuery}`);
+      performSearch(cleanedQuery);
+    }
+  };
+
+  const handleFillSearchInput = (historyItem: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setQuery(historyItem);
+    setShowHistory(false);
+    setHistoryIndex(-1);
+    searchInputRef.current?.focus();
+  };
+
+  const saveQuery = (name: string, queryText: string) => {
+    const newQuery: SavedQuery = {
+      id: Date.now().toString(),
+      name: name.trim(),
+      query: queryText.trim(),
+      createdAt: Date.now(),
+    };
+
+    setSavedQueries((prev) => {
+      const updated = [...prev, newQuery];
+      localStorage.setItem("vulnxSavedQueries", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const updateSavedQuery = (id: string, name: string, queryText: string) => {
+    setSavedQueries((prev) => {
+      const updated = prev.map((q) =>
+        q.id === id
+          ? { ...q, name: name.trim(), query: queryText.trim() }
+          : q
+      );
+      localStorage.setItem("vulnxSavedQueries", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const deleteSavedQuery = (id: string) => {
+    setSavedQueries((prev) => {
+      const updated = prev.filter((q) => q.id !== id);
+      localStorage.setItem("vulnxSavedQueries", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleSaveCurrentQuery = () => {
+    const cleanedQuery = sanitizeQueryInput(query).trim();
+    if (!cleanedQuery) return;
+
+    setSaveDialogQueryText(cleanedQuery);
+    setSaveDialogQueryName("");
+    setShowSaveDialog(true);
+  };
+
+  const confirmSaveQuery = () => {
+    if (saveDialogQueryName.trim() && saveDialogQueryText.trim()) {
+      saveQuery(saveDialogQueryName, saveDialogQueryText);
+      setShowSaveDialog(false);
+      setSaveDialogQueryName("");
+      setSaveDialogQueryText("");
+    }
+  };
+
+  const cancelSaveQuery = () => {
+    setShowSaveDialog(false);
+    setSaveDialogQueryName("");
+    setSaveDialogQueryText("");
+  };
+
+  const handleUseSavedQuery = (savedQuery: SavedQuery) => {
+    setQuery(savedQuery.query);
+    const encodedQuery = btoa(savedQuery.query);
+    router.push(`/?q=${encodedQuery}`);
+    performSearch(savedQuery.query);
+  };
+
+  const startEditingQuery = (savedQuery: SavedQuery) => {
+    setEditingQueryId(savedQuery.id);
+    setEditingQueryName(savedQuery.name);
+    setEditingQueryText(savedQuery.query);
+  };
+
+  const saveEditedQuery = () => {
+    if (editingQueryId && editingQueryName.trim() && editingQueryText.trim()) {
+      updateSavedQuery(editingQueryId, editingQueryName, editingQueryText);
+      setEditingQueryId(null);
+      setEditingQueryName("");
+      setEditingQueryText("");
+    }
+  };
+
+  const cancelEditing = () => {
+    setEditingQueryId(null);
+    setEditingQueryName("");
+    setEditingQueryText("");
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
@@ -179,6 +410,10 @@ export default function MainPage() {
               <TabsTrigger value="explore" className="flex items-center gap-2">
                 <Search className="h-4 w-4" />
                 Explore
+              </TabsTrigger>
+              <TabsTrigger value="saved" className="flex items-center gap-2">
+                <Bookmark className="h-4 w-4" />
+                Saved Queries
               </TabsTrigger>
               <TabsTrigger value="settings" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
@@ -221,32 +456,151 @@ export default function MainPage() {
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col sm:flex-row gap-3">
                       <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
                         <Input
+                          ref={searchInputRef}
                           id="searchInput"
                           type="text"
                           placeholder="Search vulnerabilities by product, vendor, CVE ID..."
-                          className="pl-10 pr-10"
+                          className="pl-10 pr-20"
                           value={query}
                           onChange={(e) =>
                             setQuery(sanitizeQueryInput(e.target.value))
                           }
-                          onKeyDown={(e) =>
-                            e.key === "Enter" && handleSearch(e)
-                          }
+                          onKeyDown={handleSearchInputKeyDown}
+                          onFocus={() => {
+                            if (searchHistory.length > 0 && !query) {
+                              setShowHistory(true);
+                            }
+                          }}
+                          onBlur={() => {
+                            // Delay to allow click on history items
+                            setTimeout(() => setShowHistory(false), 200);
+                          }}
                         />
-                        {query && (
-                          <button
-                            type="button"
-                            onClick={() => setQuery("")}
-                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1 z-10">
+                          {query.trim() && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    type="button"
+                                    onClick={handleSaveCurrentQuery}
+                                    disabled={savedQueries.some(sq => sq.query === query.trim())}
+                                    className={`p-1 transition-colors ${
+                                      savedQueries.some(sq => sq.query === query.trim())
+                                        ? "text-primary cursor-default"
+                                        : "text-muted-foreground hover:text-foreground"
+                                    }`}
+                                  >
+                                    <Bookmark 
+                                      className="h-4 w-4" 
+                                      fill={savedQueries.some(sq => sq.query === query.trim()) ? "currentColor" : "none"}
+                                    />
+                                  </button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>
+                                    {savedQueries.some(sq => sq.query === query.trim())
+                                      ? "Query already saved"
+                                      : "Save this query"}
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                          {query && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setQuery("");
+                                setShowHistory(false);
+                                setHistoryIndex(-1);
+                              }}
+                              className="p-1 text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
+                        
+                        {/* Search History Dropdown */}
+                        {showHistory && searchHistory.length > 0 && (
+                          <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-md shadow-lg z-50 max-h-[300px] overflow-auto">
+                            <div className="py-1">
+                              {searchHistory.map((item, index) => (
+                                <div
+                                  key={item}
+                                  className={`group relative w-full text-left px-4 py-2 text-sm hover:bg-accent transition-colors ${
+                                    historyIndex === index
+                                      ? "bg-accent"
+                                      : ""
+                                  }`}
+                                >
+                                  <button
+                                    type="button"
+                                    onClick={() => handleHistoryItemClick(item)}
+                                    className="w-full text-left pr-16"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <Search className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                      <span className="truncate">{item}</span>
+                                    </div>
+                                  </button>
+                                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1 opacity-0 group-hover:opacity-100">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => handleFillSearchInput(item, e)}
+                                      className="p-1 text-muted-foreground hover:text-foreground transition-colors"
+                                      aria-label="Edit search"
+                                    >
+                                      <ArrowUpRight className="h-3 w-3" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => removeFromSearchHistory(item, e)}
+                                      className="p-1 text-muted-foreground hover:text-foreground transition-colors"
+                                      aria-label="Remove from history"
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         )}
                       </div>
 
                       <div className="flex gap-2">
+                        {savedQueries.length > 0 && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="default"
+                              >
+                                <Bookmark className="h-4 w-4" />
+                                Saved
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-72">
+                              {savedQueries.map((savedQuery, index) => (
+                                <DropdownMenuItem
+                                  key={savedQuery.id}
+                                  onClick={() => handleUseSavedQuery(savedQuery)}
+                                  className={`cursor-pointer py-3 ${index < savedQueries.length - 1 ? 'border-b border-border' : ''}`}
+                                >
+                                  <div className="flex flex-col gap-1 min-w-0 flex-1">
+                                    <div className="font-medium truncate">{savedQuery.name}</div>
+                                    <div className="text-xs text-muted-foreground truncate font-mono">{savedQuery.query}</div>
+                                  </div>
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+
                         <Button
                           variant="outline"
                           size="default"
@@ -466,6 +820,109 @@ export default function MainPage() {
               </div>
             </TabsContent>
 
+            {/* Saved Queries Tab */}
+            <TabsContent value="saved" className="space-y-6">
+              <Card className="border-border">
+                <CardHeader className="pb-4">
+                  <div className="space-y-1.5">
+                    <CardTitle className="text-xl">Saved Queries</CardTitle>
+                    <CardDescription className="text-sm">
+                      Manage your saved search queries for quick access
+                    </CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {savedQueries.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-12 text-center">
+                      <Bookmark className="h-12 w-12 text-muted-foreground mb-4" />
+                      <h3 className="text-base font-semibold text-foreground mb-1">
+                        No saved queries yet
+                      </h3>
+                      <p className="text-sm text-muted-foreground max-w-sm">
+                        Save queries from the Explore tab for quick access.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {savedQueries.map((savedQuery) => (
+                        <div
+                          key={savedQuery.id}
+                          className="flex items-start gap-3 p-4 rounded-lg border border-border bg-secondary hover:bg-accent/50 transition-colors"
+                        >
+                          {editingQueryId === savedQuery.id ? (
+                            <div className="flex-1 space-y-3">
+                              <Input
+                                type="text"
+                                placeholder="Query name"
+                                value={editingQueryName}
+                                onChange={(e) => setEditingQueryName(e.target.value)}
+                                className="font-medium"
+                              />
+                              <Input
+                                type="text"
+                                placeholder="Query text"
+                                value={editingQueryText}
+                                onChange={(e) => setEditingQueryText(sanitizeQueryInput(e.target.value))}
+                                className="font-mono text-sm"
+                              />
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  onClick={saveEditedQuery}
+                                  disabled={!editingQueryName.trim() || !editingQueryText.trim()}
+                                >
+                                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                                  Save
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={cancelEditing}
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <Bookmark className="h-4 w-4 text-primary flex-shrink-0 mt-1" />
+                              <div className="flex-1 min-w-0">
+                                <h3 className="text-sm font-medium text-foreground mb-1">
+                                  {savedQuery.name}
+                                </h3>
+                                <p className="text-xs text-muted-foreground font-mono break-all">
+                                  {savedQuery.query}
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Saved {new Date(savedQuery.createdAt).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <div className="flex gap-1 flex-shrink-0">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => startEditingQuery(savedQuery)}
+                                >
+                                  <Pencil className="h-3 w-3" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => deleteSavedQuery(savedQuery.id)}
+                                >
+                                  <X className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
             {/* Settings Tab */}
             <TabsContent value="settings" className="space-y-6">
               <Card className="border-border">
@@ -600,6 +1057,60 @@ export default function MainPage() {
 
       {/* Footer */}
       <Footer />
+
+      {/* Save Query Dialog */}
+      <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Save Query</DialogTitle>
+            <DialogDescription>
+              Give your query a name to save it for quick access later.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label htmlFor="queryName" className="text-sm font-medium">
+                Query Name
+              </label>
+              <Input
+                id="queryName"
+                placeholder="e.g., Critical Apache vulnerabilities"
+                value={saveDialogQueryName}
+                onChange={(e) => setSaveDialogQueryName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && saveDialogQueryName.trim()) {
+                    confirmSaveQuery();
+                  }
+                }}
+                autoFocus
+              />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="queryText" className="text-sm font-medium">
+                Query
+              </label>
+              <Input
+                id="queryText"
+                value={saveDialogQueryText}
+                onChange={(e) => setSaveDialogQueryText(sanitizeQueryInput(e.target.value))}
+                className="font-mono text-sm"
+                readOnly
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={cancelSaveQuery}>
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmSaveQuery}
+              disabled={!saveDialogQueryName.trim()}
+            >
+              Save Query
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
