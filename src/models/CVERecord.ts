@@ -138,7 +138,7 @@ export class CVERecord {
       ? vulnerability_impact
       : [];
     this.vulnerabilityImpact = vulnerabilityImpactArray
-      .map((v: any) => String(v))
+      .map(String)
       .filter((v: string) => v.trim() !== "");
   }
 }

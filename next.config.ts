@@ -40,7 +40,7 @@ const securityHeaders = [
 if (isProd) {
   securityHeaders.push({
     key: "Strict-Transport-Security",
-    value: "max-age=31536000; includeSubDomains; preload",
+    value: "max-age=86400; includeSubDomains; preload",
   });
 }
 

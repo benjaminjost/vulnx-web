@@ -88,13 +88,6 @@ export async function searchCVE(options: SearchOptions): Promise<SearchResult> {
     if (data && typeof data === "object" && Array.isArray(data.results)) {
       const cveRecords = data.results.map((item: any) => new CVERecord(item));
 
-      if (cveRecords.length === 0) {
-        return {
-          success: false,
-          error: "No results found.",
-        };
-      }
-
       return {
         success: true,
         data: cveRecords,

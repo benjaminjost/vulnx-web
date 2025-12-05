@@ -15,15 +15,8 @@ import {
   searchCVE,
   type FilterInfo,
 } from "@/lib/projectdiscovery-api";
-import {
-  AlertCircle,
-  CheckCircle2,
-  Filter,
-  Info,
-  Search,
-  Settings,
-  X,
-} from "lucide-react";
+import { CheckCircle2, Filter, Info, Search, Settings, X } from "lucide-react";
+import ErrorBanner from "@/components/error-banner";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { columns } from "../components/cve-columns";
@@ -49,6 +42,7 @@ export default function MainPage() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasSearched, setHasSearched] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [showApiBanner, setShowApiBanner] = useState(false);
@@ -117,6 +111,7 @@ export default function MainPage() {
     setLoading(true);
     setError(null);
     setResults([]);
+    setHasSearched(true);
 
     const result = await searchCVE({
       query: searchQuery,
@@ -425,31 +420,23 @@ export default function MainPage() {
                   </Card>
                 )}
                 {error && !loading && (
-                  <Card className="border-status-critical/40 bg-status-critical/10">
-                    <CardContent className="py-12">
-                      <div className="flex flex-col items-center justify-center gap-3">
-                        <AlertCircle className="h-8 w-8 text-status-critical" />
-                        <p className="text-sm font-medium text-status-critical">
-                          Error: {error}
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <ErrorBanner title="Error" message={error} />
                 )}
-                {!loading && !error && results.length === 0 && (
+                {!loading && !error && hasSearched && results.length === 0 && (
                   <Card className="border-border">
                     <CardContent className="py-16">
                       <div className="flex flex-col items-center justify-center gap-4">
-                        <div className="rounded-full bg-secondary p-4">
-                          <Search className="h-8 w-8 text-muted-foreground" />
+                        <div className="rounded-full bg-primary/10 p-4">
+                          <Info className="h-8 w-8 text-primary" />
                         </div>
-                        <div className="text-center">
-                          <h3 className="text-base font-semibold text-foreground mb-1">
-                            No results found
+                        <div className="text-center space-y-2">
+                          <h3 className="text-base font-semibold text-foreground">
+                            No vulnerabilities found
                           </h3>
-                          <p className="text-sm text-muted-foreground">
-                            Try searching for a vulnerability using different
-                            keywords
+                          <p className="text-sm text-muted-foreground max-w-md">
+                            We couldn't find any CVEs matching your search. Try
+                            using different keywords, product names, or check
+                            the Query Info for filter examples.
                           </p>
                         </div>
                       </div>
@@ -476,8 +463,16 @@ export default function MainPage() {
                   <div className="space-y-1.5">
                     <CardTitle className="text-xl">API Configuration</CardTitle>
                     <CardDescription className="text-sm">
-                      Optional: Connect your ProjectDiscovery API key for better
-                      performance and higher rate limits
+                      Connect your{" "}
+                      <a
+                        href="https://cloud.projectdiscovery.io"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:text-primary/80 hover:underline font-medium transition-colors"
+                      >
+                        ProjectDiscovery
+                      </a>{" "}
+                      API key for better performance and higher rate limits
                     </CardDescription>
                   </div>
                 </CardHeader>
@@ -492,25 +487,13 @@ export default function MainPage() {
                     <Input
                       id="apiKeyInput"
                       type="password"
-                      placeholder="xxxxxxxxxxxxxxxxxxxxxxxx"
+                      placeholder="••••••••••••••••••••••••"
                       value={apiKey}
                       onChange={(e) =>
                         setApiKey(sanitizeApiKeyInput(e.target.value))
                       }
                       className="font-mono text-sm"
                     />
-                    <p className="text-xs text-muted-foreground">
-                      Get your API key from{" "}
-                      <a
-                        href="https://cloud.projectdiscovery.io"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:text-primary/80 hover:underline font-medium transition-colors"
-                      >
-                        ProjectDiscovery Cloud
-                      </a>{" "}
-                      to avoid rate limits and get better performance.
-                    </p>
                   </div>
 
                   <div className="flex items-start gap-3 rounded-lg border border-border bg-secondary p-4">
@@ -537,7 +520,11 @@ export default function MainPage() {
                   )}
 
                   <div className="flex gap-2">
-                    <Button onClick={handleApiKeySave} className="flex-1">
+                    <Button
+                      onClick={handleApiKeySave}
+                      className="flex-1"
+                      disabled={!apiKey.trim()}
+                    >
                       <CheckCircle2 className="h-4 w-4 mr-2" />
                       Save Configuration
                     </Button>

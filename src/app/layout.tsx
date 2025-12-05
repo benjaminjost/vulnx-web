@@ -12,7 +12,8 @@ const geist = Geist({
 
 export const metadata: Metadata = {
   title: "Vulnx – CVE Search",
-  description: "Search and explore CVE vulnerabilities with Vulnx Web",
+  description:
+    "Search and explore CVEs, vulnerabilities, security advisories, and exploit databases. CVE lookup tool powered by the ProjectDiscovery API.",
 };
 
 export default function RootLayout({

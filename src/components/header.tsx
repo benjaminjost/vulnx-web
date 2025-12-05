@@ -46,48 +46,37 @@ export default function Header() {
   };
 
   return (
-    <header className="border-b border-border bg-card">
-      <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4">
-        <a href="/" className="flex items-center gap-2">
-          <h1 className="text-2xl font-semibold tracking-tight text-primary">
+    <header className="border-b border-border bg-background">
+      <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-5">
+        <a href="/" className="flex items-center gap-3 group">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Vulnx
           </h1>
-          <Badge variant="secondary" className="text-xs">
+          <Badge variant="outline" className="text-xs font-medium">
             Web
           </Badge>
         </a>
         {mounted && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <button
-              type="button"
-              role="switch"
-              aria-checked={theme === "dark"}
-              onClick={toggleTheme}
-              className="flex items-center gap-1 rounded-full border border-border bg-card/80 px-1 py-1 text-muted-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          <button
+            type="button"
+            role="switch"
+            aria-checked={theme === "dark"}
+            onClick={toggleTheme}
+            className="relative inline-flex h-8 w-14 items-center rounded-full border border-border bg-secondary transition-colors hover:bg-secondary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <span
+              className={`inline-flex h-6 w-6 items-center justify-center rounded-full bg-background shadow-sm transition-transform duration-200 ${
+                theme === "dark" ? "translate-x-7" : "translate-x-1"
+              }`}
             >
-              <span
-                className={`flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium transition-colors ${
-                  theme === "light"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground/70"
-                }`}
-              >
-                <Sun className="h-3.5 w-3.5" />
-                Light
-              </span>
-              <span
-                className={`flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium transition-colors ${
-                  theme === "dark"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground/70"
-                }`}
-              >
-                <Moon className="h-3.5 w-3.5" />
-                Dark
-              </span>
-              <span className="sr-only">Toggle color theme</span>
-            </button>
-          </div>
+              {theme === "dark" ? (
+                <Moon className="h-3.5 w-3.5 text-foreground" />
+              ) : (
+                <Sun className="h-3.5 w-3.5 text-foreground" />
+              )}
+            </span>
+            <span className="sr-only">Toggle color theme</span>
+          </button>
         )}
       </div>
     </header>
