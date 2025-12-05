@@ -593,13 +593,6 @@ export default function MainPage() {
                   )}
                 </CardContent>
               </Card>
-
-              {/* Version Information */}
-              <div className="flex items-center justify-center py-4">
-                <p className="text-xs text-muted-foreground">
-                  Version <span className="font-mono font-medium">{process.env.APP_VERSION || '1.0.0'}</span>
-                </p>
-              </div>
             </TabsContent>
           </Tabs>
         </div>
