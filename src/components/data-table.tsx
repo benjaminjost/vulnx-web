@@ -77,128 +77,273 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="rounded-2xl border border-border/70 shadow-lg overflow-hidden bg-card text-card-foreground">
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                return (
-                  <TableHead
-                    key={header.id}
-                    style={{
-                      width: header.column.getSize
-                        ? `${header.column.getSize()}px`
-                        : undefined,
-                    }}
-                  >
-                    {(() => {
-                      if (header.isPlaceholder) {
-                        return null;
-                      }
-
-                      if (header.column.getCanSort()) {
-                        return (
-                          <button
-                            type="button"
-                            className="flex items-center cursor-pointer select-none w-full text-left"
-                            onClick={header.column.getToggleSortingHandler()}
-                          >
-                            {flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
-                            <span className="ml-2">
-                              {(() => {
-                                const sortDirection =
-                                  header.column.getIsSorted();
-                                if (sortDirection === "asc") {
-                                  return <ArrowUp className="h-4 w-4" />;
-                                }
-                                if (sortDirection === "desc") {
-                                  return <ArrowDown className="h-4 w-4" />;
-                                }
-                                return (
-                                  <ArrowUpDown className="h-4 w-4 opacity-50" />
-                                );
-                              })()}
-                            </span>
-                          </button>
-                        );
-                      }
-
-                      return flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      );
-                    })()}
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <React.Fragment key={row.id}>
-                <TableRow
-                  data-state={row.getIsSelected() && "selected"}
-                  onClick={() => row.toggleExpanded()}
-                  className="cursor-pointer"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
+      {/* Desktop Table View */}
+      <div className="hidden md:block">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead
+                      key={header.id}
                       style={{
-                        width: cell.column.getSize
-                          ? `${cell.column.getSize()}px`
+                        width: header.column.getSize
+                          ? `${header.column.getSize()}px`
                           : undefined,
                       }}
                     >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-                {row.getIsExpanded() && renderSubComponent && (
-                  <TableRow className="bg-secondary/60 hover:bg-secondary/60">
-                    <TableCell colSpan={columns.length} className="px-0 py-0">
-                      <div className="py-6 px-1">
-                        {renderSubComponent({ row })}
-                      </div>
-                    </TableCell>
+                      {(() => {
+                        if (header.isPlaceholder) {
+                          return null;
+                        }
+
+                        if (header.column.getCanSort()) {
+                          return (
+                            <button
+                              type="button"
+                              className="flex items-center cursor-pointer select-none w-full text-left"
+                              onClick={header.column.getToggleSortingHandler()}
+                            >
+                              {flexRender(
+                                header.column.columnDef.header,
+                                header.getContext(),
+                              )}
+                              <span className="ml-2">
+                                {(() => {
+                                  const sortDirection =
+                                    header.column.getIsSorted();
+                                  if (sortDirection === "asc") {
+                                    return <ArrowUp className="h-4 w-4" />;
+                                  }
+                                  if (sortDirection === "desc") {
+                                    return <ArrowDown className="h-4 w-4" />;
+                                  }
+                                  return (
+                                    <ArrowUpDown className="h-4 w-4 opacity-50" />
+                                  );
+                                })()}
+                              </span>
+                            </button>
+                          );
+                        }
+
+                        return flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        );
+                      })()}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <React.Fragment key={row.id}>
+                  <TableRow
+                    data-state={row.getIsSelected() && "selected"}
+                    onClick={() => row.toggleExpanded()}
+                    className="cursor-pointer"
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        key={cell.id}
+                        style={{
+                          width: cell.column.getSize
+                            ? `${cell.column.getSize()}px`
+                            : undefined,
+                        }}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
                   </TableRow>
+                  {row.getIsExpanded() && renderSubComponent && (
+                    <TableRow className="bg-secondary/60 hover:bg-secondary/60">
+                      <TableCell colSpan={columns.length} className="px-0 py-0">
+                        <div className="py-6 px-1">
+                          {renderSubComponent({ row })}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </React.Fragment>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center text-muted-foreground"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden">
+        {/* Mobile Sort Controls */}
+        <div className="flex items-center justify-between gap-2 p-4 border-b border-border bg-secondary/20">
+          <span className="text-sm font-medium text-muted-foreground">
+            Sort by:
+          </span>
+          <div className="flex items-center gap-2">
+            <Select
+              value={sorting[0]?.id || "none"}
+              onValueChange={(value) => {
+                if (value && value !== "none") {
+                  setSorting([{ id: value, desc: sorting[0]?.desc || false }]);
+                } else {
+                  setSorting([]);
+                }
+              }}
+            >
+              <SelectTrigger className="h-9 w-[140px]">
+                <SelectValue placeholder="Select field" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                {columns
+                  .filter((col) => {
+                    const accessorCol = col as any;
+                    return (
+                      col.enableSorting !== false && accessorCol.accessorKey
+                    );
+                  })
+                  .map((col) => {
+                    const accessorCol = col as any;
+                    return (
+                      <SelectItem
+                        key={accessorCol.accessorKey}
+                        value={accessorCol.accessorKey}
+                      >
+                        {typeof col.header === "string"
+                          ? col.header
+                          : accessorCol.accessorKey}
+                      </SelectItem>
+                    );
+                  })}
+              </SelectContent>
+            </Select>
+            {sorting.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSorting([{ id: sorting[0].id, desc: !sorting[0].desc }]);
+                }}
+                className="h-9 w-9 p-0"
+              >
+                {sorting[0].desc ? (
+                  <ArrowDown className="h-4 w-4" />
+                ) : (
+                  <ArrowUp className="h-4 w-4" />
+                )}
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {table.getRowModel().rows?.length ? (
+          <div className="divide-y divide-border">
+            {table.getRowModel().rows.map((row) => (
+              <React.Fragment key={row.id}>
+                <button
+                  type="button"
+                  onClick={() => row.toggleExpanded()}
+                  className="w-full p-4 text-left hover:bg-secondary/40 transition-colors"
+                >
+                  {/* CVE ID and Severity */}
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <div className="flex-1 min-w-0">
+                      {flexRender(
+                        row.getVisibleCells()[0].column.columnDef.cell,
+                        row.getVisibleCells()[0].getContext(),
+                      )}
+                    </div>
+                    <div>
+                      {flexRender(
+                        row.getVisibleCells()[3].column.columnDef.cell,
+                        row.getVisibleCells()[3].getContext(),
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Vulnerability Name */}
+                  <div className="mb-3">
+                    {flexRender(
+                      row.getVisibleCells()[1].column.columnDef.cell,
+                      row.getVisibleCells()[1].getContext(),
+                    )}
+                  </div>
+
+                  {/* CVSS Score, Age, PoC */}
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-muted-foreground">CVSS:</span>
+                      {flexRender(
+                        row.getVisibleCells()[2].column.columnDef.cell,
+                        row.getVisibleCells()[2].getContext(),
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-muted-foreground">Age:</span>
+                      {flexRender(
+                        row.getVisibleCells()[4].column.columnDef.cell,
+                        row.getVisibleCells()[4].getContext(),
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-muted-foreground">PoC:</span>
+                      {flexRender(
+                        row.getVisibleCells()[5].column.columnDef.cell,
+                        row.getVisibleCells()[5].getContext(),
+                      )}
+                    </div>
+                  </div>
+                </button>
+
+                {row.getIsExpanded() && renderSubComponent && (
+                  <div className="bg-secondary/60 px-4 py-6">
+                    {renderSubComponent({ row })}
+                  </div>
                 )}
               </React.Fragment>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell
-                colSpan={columns.length}
-                className="h-24 text-center text-muted-foreground"
-              >
-                No results.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+            ))}
+          </div>
+        ) : (
+          <div className="h-24 flex items-center justify-center text-muted-foreground">
+            No results.
+          </div>
+        )}
+      </div>
 
       {/* Pagination Controls */}
-      <div className="flex items-center justify-between px-5 py-4 border-t border-border bg-secondary/40">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-4 sm:px-5 py-4 border-t border-border bg-secondary/40">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>
             Page {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()} ({table.getFilteredRowModel().rows.length}{" "}
-            results)
+            {table.getPageCount()}
+          </span>
+          <span className="hidden sm:inline">
+            ({table.getFilteredRowModel().rows.length} results)
           </span>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full sm:w-auto">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Show</span>
+            <span className="text-sm text-muted-foreground hidden sm:inline">
+              Show
+            </span>
             <Select
               value={`${table.getState().pagination.pageSize}`}
               onValueChange={(value) => {
@@ -220,12 +365,13 @@ export function DataTable<TData, TValue>({
             </Select>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => table.setPageIndex(0)}
               disabled={!table.getCanPreviousPage()}
+              className="hidden sm:flex"
             >
               <ChevronsLeft className="h-4 w-4" />
             </Button>
@@ -250,6 +396,7 @@ export function DataTable<TData, TValue>({
               size="sm"
               onClick={() => table.setPageIndex(table.getPageCount() - 1)}
               disabled={!table.getCanNextPage()}
+              className="hidden sm:flex"
             >
               <ChevronsRight className="h-4 w-4" />
             </Button>
