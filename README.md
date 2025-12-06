@@ -1,6 +1,6 @@
 <div align="center">
 
-<h1>vulnlensWeb</h1>
+<h1>vulnLens</h1>
 
 <p>Minimal web application for searching and exploring Common Vulnerabilities and Exposures (CVEs)</p>
 
@@ -114,7 +114,7 @@ vulnlens/
 
 ## Data Sources
 
-VulnLens Web uses [ProjectDiscovery's CVEMap](https://github.com/projectdiscovery/cvemap), which aggregates:
+VulnLens uses [ProjectDiscovery's CVEMap](https://github.com/projectdiscovery/cvemap), which aggregates:
 
 - [NVD](https://nvd.nist.gov/developers) – primary CVE feed
 - [CISA KEV](https://www.cisa.gov/known-exploited-vulnerabilities-catalog) – known exploited vulnerabilities
