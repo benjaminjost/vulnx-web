@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "main": ".open-next/worker.js",
-  "name": "vulnx-web",
+  "name": "vulnlens",
   "compatibility_date": "2025-03-25",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
@@ -10,7 +10,7 @@
   },
   "routes": [
     {
-      "pattern": "vulnx.benjaminjost.com",
+      "pattern": "vulnlens.benjaminjost.com",
       "custom_domain": true,
     },
   ],
@@ -20,11 +20,13 @@
       "head_sampling_rate": 1,
       "invocation_logs": true,
       "persist": true,
+      "destinations": ["grafana-logs"]
     },
     "traces": {
       "enabled": true,
       "head_sampling_rate": 1,
       "persist": true,
+      "destinations": ["grafana-traces"]
     },
   },
 }

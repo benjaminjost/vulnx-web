@@ -1,6 +1,6 @@
 <div align="center">
 
-<h1>vulnxWeb</h1>
+<h1>vulnlensWeb</h1>
 
 <p>Minimal web application for searching and exploring Common Vulnerabilities and Exposures (CVEs)</p>
 
@@ -19,8 +19,8 @@
 ### Installation
 
 ```bash
-git clone https://github.com/benjaminjost/vulnx-web.git
-cd vulnx-web
+git clone https://github.com/benjaminjost/vulnlens.git
+cd vulnlens
 npm install   # or pnpm install / yarn install
 npm run dev   # http://localhost:3000
 ```
@@ -73,7 +73,7 @@ https://your-domain.com/CVE-2025-5678
 ## Project Structure
 
 ```
-vulnx-web/
+vulnlens/
 ├── src/
 │   ├── app/
 │   │   ├── [cveId]/       # Dynamic CVE detail route
@@ -114,7 +114,7 @@ vulnx-web/
 
 ## Data Sources
 
-Vulnx Web uses [ProjectDiscovery’s CVEMap](https://github.com/projectdiscovery/cvemap), which aggregates:
+VulnLens Web uses [ProjectDiscovery's CVEMap](https://github.com/projectdiscovery/cvemap), which aggregates:
 
 - [NVD](https://nvd.nist.gov/developers) – primary CVE feed
 - [CISA KEV](https://www.cisa.gov/known-exploited-vulnerabilities-catalog) – known exploited vulnerabilities

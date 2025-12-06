@@ -14,7 +14,7 @@ export default function Footer() {
           </a>
           <span className="mx-1 text-muted-foreground/70">•</span>
           <a
-            href="https://github.com/benjaminjost/vulnx-web"
+            href="https://github.com/benjaminjost/vulnlens"
             target="_blank"
             rel="noopener noreferrer"
             className="font-medium text-primary hover:text-primary/80 hover:underline"

@@ -40,7 +40,7 @@ export async function searchCVE(options: SearchOptions): Promise<SearchResult> {
     const apiKey =
       globalThis.window === undefined
         ? null
-        : localStorage.getItem("vulnxApiKey");
+        : localStorage.getItem("vulnlensApiKey");
 
     if (apiKey) {
       headers["X-API-Key"] = apiKey;

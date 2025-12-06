@@ -37,9 +37,9 @@ export default function ClientCvePage({
 
   useEffect(() => {
     if (cveData) {
-      document.title = `${cveData.cveId} - ${cveData.name || "CVE Details"} | Vulnx`;
+      document.title = `${cveData.cveId} - ${cveData.name || "CVE Details"} | VulnLens`;
     } else if (cveId) {
-      document.title = `${cveId} | Vulnx`;
+      document.title = `${cveId} | VulnLens`;
     }
   }, [cveData, cveId]);
 

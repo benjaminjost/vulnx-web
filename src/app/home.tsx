@@ -70,9 +70,9 @@ export default function MainPage() {
   }, [searchParams]);
 
   useEffect(() => {
-    const storedKey = localStorage.getItem("vulnxApiKey");
-    const bannerDismissed = localStorage.getItem("vulnxBannerDismissed");
-    const storedFilters = localStorage.getItem("vulnxFilterInfo");
+    const storedKey = localStorage.getItem("vulnlensApiKey");
+    const bannerDismissed = localStorage.getItem("vulnlensBannerDismissed");
+    const storedFilters = localStorage.getItem("vulnlensFilterInfo");
 
     if (storedKey) {
       setApiKey(sanitizeApiKeyInput(storedKey));
@@ -99,7 +99,7 @@ export default function MainPage() {
 
     if (result.success && result.data) {
       setFilterInfo(result.data);
-      localStorage.setItem("vulnxFilterInfo", JSON.stringify(result.data));
+      localStorage.setItem("vulnlensFilterInfo", JSON.stringify(result.data));
     } else if (result.error) {
       console.error("Failed to fetch filter information", result.error);
     }
@@ -146,7 +146,7 @@ export default function MainPage() {
       if (cleanedKey !== apiKey) {
         setApiKey(cleanedKey);
       }
-      localStorage.setItem("vulnxApiKey", cleanedKey);
+      localStorage.setItem("vulnlensApiKey", cleanedKey);
       setShowApiBanner(false);
       setApiKeySaved(true);
 
@@ -157,7 +157,7 @@ export default function MainPage() {
   };
 
   const handleApiKeyDelete = () => {
-    localStorage.removeItem("vulnxApiKey");
+    localStorage.removeItem("vulnlensApiKey");
     setApiKey("");
     setApiKeySaved(false);
   };
@@ -202,7 +202,7 @@ export default function MainPage() {
                       className="h-8 w-8 p-0 hover:bg-primary/20"
                       onClick={() => {
                         setShowApiBanner(false);
-                        localStorage.setItem("vulnxBannerDismissed", "true");
+                        localStorage.setItem("vulnlensBannerDismissed", "true");
                       }}
                     >
                       <X className="h-4 w-4" />

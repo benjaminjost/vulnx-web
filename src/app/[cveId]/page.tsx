@@ -4,7 +4,7 @@ import ClientCvePage from "./client-page";
 import { isValidCveId } from "@/lib/utils";
 
 const baseUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://vulnx.benjaminjost.com";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://vulnlens.benjaminjost.com";
 
 export async function generateMetadata(props: {
   params: Promise<{ cveId: string }>;
@@ -13,13 +13,13 @@ export async function generateMetadata(props: {
 
   if (!isValidCveId(cveId)) {
     return {
-      title: "Not Found | Vulnx",
+      title: "Not Found | VulnLens",
       description: "The requested page was not found.",
     };
   }
 
   const canonical = `${baseUrl}/${cveId}`;
-  const title = `${cveId} | Vulnx`;
+  const title = `${cveId} | VulnLens`;
   const description = `${cveId} vulnerability details including severity scores, security patches, and exploit information.`;
 
   return {

@@ -1,6 +1,6 @@
 (function () {
   try {
-    const storageKey = "vulnxTheme";
+    const storageKey = "vulnlensTheme";
     const stored = localStorage.getItem(storageKey);
     const prefersDark = window.matchMedia(
       "(prefers-color-scheme: dark)",
