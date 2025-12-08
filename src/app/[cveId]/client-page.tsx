@@ -5,6 +5,7 @@ import { CVEHeader } from "@/components/cve-details/cve-details-header";
 import Footer from "@/components/layout/footer";
 import Header from "@/components/layout/header";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { searchCVE } from "@/lib/projectdiscovery-api";
 import { isValidCveId } from "@/lib/utils";
@@ -29,6 +30,7 @@ export default function ClientCvePage({
   const [cveData, setCveData] = useState<CVERecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [bovFiles, setBovFiles] = useState<File[]>([]);
 
   useEffect(() => {
     setCveId(params.cveId);
@@ -64,6 +66,14 @@ export default function ClientCvePage({
     }
 
     setLoading(false);
+  };
+
+  const handleBovUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ): void => {
+    const files = event.target.files;
+    if (!files) return;
+    setBovFiles(Array.from(files));
   };
 
   return (
@@ -143,6 +153,47 @@ export default function ClientCvePage({
               <CVEHeader cve={cveData} />
 
               <CVEDetails cve={cveData} />
+
+              <Card className="border-border">
+                <CardContent className="pt-6 space-y-4">
+                  <div className="flex flex-col gap-2">
+                    <h3 className="text-lg font-semibold">BOV files</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Upload BOV files to explore them alongside this CVE.
+                    </p>
+                    <Input
+                      type="file"
+                      multiple
+                      accept=".bov,.json,.txt"
+                      onChange={handleBovUpload}
+                    />
+                  </div>
+                  {bovFiles.length > 0 ? (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Uploaded files</p>
+                      <ul className="divide-y divide-border rounded-md border border-border">
+                        {bovFiles.map((file) => (
+                          <li
+                            key={`${file.name}-${file.size}`}
+                            className="flex items-center justify-between px-3 py-2 text-sm"
+                          >
+                            <span className="font-medium text-foreground">
+                              {file.name}
+                            </span>
+                            <span className="text-muted-foreground">
+                              {(file.size / 1024).toFixed(1)} KB
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      No BOV files uploaded yet.
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           )}
         </div>

@@ -43,3 +43,7 @@ next-env.d.ts
 # cloudflare workers
 .wrangler/
 .open-next/
+
+# local dev settings
+.vscode/*
+result.json

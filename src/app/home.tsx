@@ -15,7 +15,7 @@ import {
   searchCVE,
   type FilterInfo,
 } from "@/lib/projectdiscovery-api";
-import { CheckCircle2, Filter, Info, Search, Settings, X } from "lucide-react";
+import { CheckCircle2, Filter, Info, Search, Settings, Upload, X } from "lucide-react";
 import ErrorBanner from "@/components/shared/error-banner";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -50,6 +50,7 @@ export default function MainPage() {
   const [filterInfo, setFilterInfo] = useState<FilterInfo[]>([]);
   const [loadingFilters, setLoadingFilters] = useState(false);
   const [filterSearchTerm, setFilterSearchTerm] = useState("");
+  const [bovFiles, setBovFiles] = useState<File[]>([]);
 
   useEffect(() => {
     const qParam = searchParams.get("q");
@@ -162,6 +163,12 @@ export default function MainPage() {
     setApiKeySaved(false);
   };
 
+  const handleBovUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+    setBovFiles(Array.from(files));
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
@@ -175,6 +182,10 @@ export default function MainPage() {
               <TabsTrigger value="explore" className="flex items-center gap-2">
                 <Search className="h-4 w-4" />
                 Explore
+              </TabsTrigger>
+              <TabsTrigger value="bov" className="flex items-center gap-2">
+                <Upload className="h-4 w-4" />
+                BOV Explorer
               </TabsTrigger>
               <TabsTrigger value="settings" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
@@ -405,7 +416,6 @@ export default function MainPage() {
                 </CardContent>
               </Card>
 
-              {/* Results Table */}
               <div className="flex flex-col gap-6">
                 {loading && (
                   <Card>
@@ -454,6 +464,52 @@ export default function MainPage() {
                   />
                 )}
               </div>
+            </TabsContent>
+
+            {/* BOV Explorer Tab */}
+            <TabsContent value="bov" className="space-y-6">
+              <Card className="border-border">
+                <CardHeader className="pb-3">
+                  <div className="space-y-1">
+                    <CardTitle className="text-xl">BOV Explorer</CardTitle>
+                    <CardDescription>
+                      Upload BOV files to explore them alongside your research.
+                    </CardDescription>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Input
+                    type="file"
+                    multiple
+                    accept=".bov,.json,.txt"
+                    onChange={handleBovUpload}
+                  />
+                  {bovFiles.length > 0 ? (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Uploaded files</p>
+                      <ul className="divide-y divide-border rounded-md border border-border">
+                        {bovFiles.map((file) => (
+                          <li
+                            key={`${file.name}-${file.size}`}
+                            className="flex items-center justify-between px-3 py-2 text-sm"
+                          >
+                            <span className="font-medium text-foreground">
+                              {file.name}
+                            </span>
+                            <span className="text-muted-foreground">
+                              {(file.size / 1024).toFixed(1)} KB
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      No BOV files uploaded yet.
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
             </TabsContent>
 
             {/* Settings Tab */}
