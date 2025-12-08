@@ -1,5 +1,4 @@
 "use client";
-import { Badge } from "@/components/ui/badge";
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -12,7 +11,9 @@ export default function Header() {
 
   useEffect(() => {
     const mediaQuery = globalThis.matchMedia("(prefers-color-scheme: dark)");
-    const storedTheme = localStorage.getItem("vulnlensTheme") as ThemeMode | null;
+    const storedTheme = localStorage.getItem(
+      "vulnlensTheme",
+    ) as ThemeMode | null;
     const initialTheme = storedTheme ?? (mediaQuery.matches ? "dark" : "light");
     setTheme(initialTheme);
 
@@ -50,10 +51,10 @@ export default function Header() {
     <header className="border-b border-border bg-background">
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-5">
         <a href="/" className="flex items-center gap-3 group">
-          <Image 
-            src="/logo.png" 
-            alt="VulnLens Logo" 
-            width={32} 
+          <Image
+            src="/logo.png"
+            alt="VulnLens Logo"
+            width={32}
             height={32}
             className="h-8 w-8"
           />

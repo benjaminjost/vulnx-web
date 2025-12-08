@@ -1,15 +1,15 @@
 "use client";
 
-import { CVEDetails } from "@/components/cve-details";
-import { CVEHeader } from "@/components/cve-header";
-import Footer from "@/components/footer";
-import Header from "@/components/header";
+import { CVEDetails } from "@/components/cve-details/cve-details";
+import { CVEHeader } from "@/components/cve-details/cve-details-header";
+import Footer from "@/components/layout/footer";
+import Header from "@/components/layout/header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { searchCVE } from "@/lib/projectdiscovery-api";
 import { isValidCveId } from "@/lib/utils";
 import { CVERecord } from "@/models/CVERecord";
-import ErrorBanner from "@/components/error-banner";
+import ErrorBanner from "@/components/shared/error-banner";
 import { useEffect, useState } from "react";
 import {
   Breadcrumb,

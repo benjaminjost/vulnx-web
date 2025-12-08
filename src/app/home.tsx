@@ -16,14 +16,14 @@ import {
   type FilterInfo,
 } from "@/lib/projectdiscovery-api";
 import { CheckCircle2, Filter, Info, Search, Settings, X } from "lucide-react";
-import ErrorBanner from "@/components/error-banner";
+import ErrorBanner from "@/components/shared/error-banner";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { columns } from "../components/cve-columns";
-import { CVEDetails } from "../components/cve-details";
-import { DataTable } from "../components/data-table";
-import Footer from "../components/footer";
-import Header from "../components/header";
+import { columns } from "../components/cve-details/cve-columns";
+import { CVEDetails } from "../components/cve-details/cve-details";
+import { DataTable } from "../components/cve-details/data-table";
+import Footer from "../components/layout/footer";
+import Header from "../components/layout/header";
 import { CVERecord } from "../models/CVERecord";
 
 const sanitizeQueryInput = (value: string) =>
