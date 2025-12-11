@@ -25,15 +25,8 @@ import { DataTable } from "../components/cve-details/data-table";
 import Footer from "../components/layout/footer";
 import Header from "../components/layout/header";
 import { CVERecord } from "../models/CVERecord";
-
-const sanitizeQueryInput = (value: string) =>
-  value
-    .replaceAll(/[^\w\s\-.:/"()&|<>=]/g, "")
-    .replaceAll(/\s+/g, " ")
-    .slice(0, 200);
-
-const sanitizeApiKeyInput = (value: string) =>
-  value.replaceAll(/[^A-Za-z0-9\-_.]/g, "").slice(0, 128);
+import { InsightsPanel } from "../components/cve-details/insights";
+import { sanitizeQueryInput, sanitizeApiKeyInput } from "@/lib/utils";
 
 export default function MainPage() {
   const searchParams = useSearchParams();
@@ -191,7 +184,7 @@ export default function MainPage() {
                     <div className="flex items-center gap-3 flex-1">
                       <Info className="h-4 w-4 text-primary flex-shrink-0" />
                       <p className="text-sm text-foreground">
-                        You can use this search without an API key, but you'll
+                        You can use this search without an API key, but you will
                         be rate limited. For better performance, configure your
                         API key in the settings tab.
                       </p>
@@ -434,7 +427,7 @@ export default function MainPage() {
                             No vulnerabilities found
                           </h3>
                           <p className="text-sm text-muted-foreground max-w-md">
-                            We couldn't find any CVEs matching your search. Try
+                            We could not find any CVEs matching your search. Try
                             using different keywords, product names, or check
                             the Query Info for filter examples.
                           </p>
@@ -444,14 +437,17 @@ export default function MainPage() {
                   </Card>
                 )}
                 {!loading && !error && results.length > 0 && (
-                  <DataTable
-                    columns={columns}
-                    data={results}
-                    renderSubComponent={({ row }) => {
-                      const result = row.original as CVERecord;
-                      return <CVEDetails cve={result} />;
-                    }}
-                  />
+                  <div className="space-y-5">
+                    <DataTable
+                      columns={columns}
+                      data={results}
+                      renderSubComponent={({ row }) => {
+                        const result = row.original as CVERecord;
+                        return <CVEDetails cve={result} />;
+                      }}
+                    />
+                    <InsightsPanel data={results} />
+                  </div>
                 )}
               </div>
             </TabsContent>
