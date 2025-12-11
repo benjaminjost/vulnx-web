@@ -15,7 +15,15 @@ import {
   searchCVE,
   type FilterInfo,
 } from "@/lib/projectdiscovery-api";
-import { CheckCircle2, Filter, Info, Search, Settings, X } from "lucide-react";
+import {
+  CheckCircle2,
+  Filter,
+  Info,
+  Search,
+  Settings,
+  X,
+  BarChart3,
+} from "lucide-react";
 import ErrorBanner from "@/components/shared/error-banner";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -27,6 +35,16 @@ import Header from "../components/layout/header";
 import { CVERecord } from "../models/CVERecord";
 import { InsightsPanel } from "../components/cve-details/insights";
 import { sanitizeQueryInput, sanitizeApiKeyInput } from "@/lib/utils";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+  DrawerClose,
+} from "@/components/ui/drawer";
 
 export default function MainPage() {
   const searchParams = useSearchParams();
@@ -43,6 +61,7 @@ export default function MainPage() {
   const [filterInfo, setFilterInfo] = useState<FilterInfo[]>([]);
   const [loadingFilters, setLoadingFilters] = useState(false);
   const [filterSearchTerm, setFilterSearchTerm] = useState("");
+  const [showInsights, setShowInsights] = useState(false);
 
   useEffect(() => {
     const qParam = searchParams.get("q");
@@ -104,6 +123,7 @@ export default function MainPage() {
     setLoading(true);
     setError(null);
     setResults([]);
+    setShowInsights(false);
     setHasSearched(true);
 
     const result = await searchCVE({
@@ -118,6 +138,12 @@ export default function MainPage() {
 
     setLoading(false);
   };
+
+  useEffect(() => {
+    if (results.length === 0) {
+      setShowInsights(false);
+    }
+  }, [results.length]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -206,7 +232,7 @@ export default function MainPage() {
 
               {/* Search Section */}
               <Card className="border-border">
-                <CardContent className="pt-6">
+                <CardContent className="pt-0">
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col sm:flex-row gap-3">
                       <div className="relative flex-1">
@@ -438,15 +464,64 @@ export default function MainPage() {
                 )}
                 {!loading && !error && results.length > 0 && (
                   <div className="space-y-5">
-                    <DataTable
-                      columns={columns}
-                      data={results}
-                      renderSubComponent={({ row }) => {
-                        const result = row.original as CVERecord;
-                        return <CVEDetails cve={result} />;
-                      }}
-                    />
-                    <InsightsPanel data={results} />
+                    <Drawer
+                      open={showInsights}
+                      onOpenChange={setShowInsights}
+                      direction="right"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="text-sm text-muted-foreground">
+                          {results.length} result
+                          {results.length === 1 ? "" : "s"} found
+                        </div>
+                        <DrawerTrigger asChild>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="gap-2 shadow-sm hidden sm:inline-flex"
+                          >
+                            <BarChart3 className="h-4 w-4" />
+                            Insights
+                          </Button>
+                        </DrawerTrigger>
+                      </div>
+
+                      <DataTable
+                        columns={columns}
+                        data={results}
+                        renderSubComponent={({ row }) => {
+                          const result = row.original as CVERecord;
+                          return <CVEDetails cve={result} />;
+                        }}
+                      />
+
+                      <DrawerContent className="insights-drawer flex flex-col">
+                        <DrawerHeader className="text-left">
+                          <DrawerTitle>Insights</DrawerTitle>
+                          <div className="space-y-1">
+                            <DrawerDescription>
+                              Analysis of your current query results.
+                            </DrawerDescription>
+                            {query && (
+                              <p className="text-xs text-muted-foreground">
+                                Query:{" "}
+                                <span className="font-mono text-foreground break-all">
+                                  {query}
+                                </span>
+                              </p>
+                            )}
+                          </div>
+                        </DrawerHeader>
+                        <div className="flex-1 overflow-y-auto px-4 py-4">
+                          <InsightsPanel data={results} />
+                        </div>
+                        <DrawerFooter className="flex flex-row items-center justify-end gap-2 border-t border-border/60">
+                          <DrawerClose asChild>
+                            <Button variant="outline">Close</Button>
+                          </DrawerClose>
+                        </DrawerFooter>
+                      </DrawerContent>
+                    </Drawer>
                   </div>
                 )}
               </div>
