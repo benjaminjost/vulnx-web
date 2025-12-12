@@ -62,9 +62,14 @@ export default function MainPage() {
   const [loadingFilters, setLoadingFilters] = useState(false);
   const [filterSearchTerm, setFilterSearchTerm] = useState("");
   const [showInsights, setShowInsights] = useState(false);
+  const [shouldAutoOpenInsights, setShouldAutoOpenInsights] = useState(false);
 
   useEffect(() => {
     const qParam = searchParams.get("q");
+    const insightsParam = searchParams.get("insights");
+
+    setShouldAutoOpenInsights(insightsParam === "true");
+
     if (qParam) {
       try {
         const decodedQuery = atob(qParam);
@@ -144,6 +149,13 @@ export default function MainPage() {
       setShowInsights(false);
     }
   }, [results.length]);
+
+  useEffect(() => {
+    if (shouldAutoOpenInsights && results.length > 0) {
+      setShowInsights(true);
+      setShouldAutoOpenInsights(false);
+    }
+  }, [results.length, shouldAutoOpenInsights]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
